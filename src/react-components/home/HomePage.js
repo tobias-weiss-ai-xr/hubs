@@ -94,17 +94,17 @@ export function HomePage() {
           </div>
         </div>
       </Container>
-      {configs.feature("show_feature_panels") && (
+          {configs.feature("show_feature_panels") && (
         <Container className={classNames(styles.features, styles.colLg, styles.centerLg)}>
           <Column padding gap="xl" className={styles.card}>
             <img src={configs.image("landing_rooms_thumb")} />
             <h3>
-              <FormattedMessage id="home-page.rooms-title" defaultMessage="Instantly create rooms" />
+              <FormattedMessage id="home-page.rooms-title" defaultMessage="3D Chemistry VR Rooms" />
             </h3>
             <p>
               <FormattedMessage
                 id="home-page.rooms-blurb"
-                defaultMessage="Share virtual spaces with your friends, co-workers, and communities. When you create a room with Hubs, you’ll have a private virtual meeting space that you can instantly share <b>- no downloads or VR headset necessary.</b>"
+                defaultMessage="Explore chemistry in immersive 3D VR spaces. Interactive periodic tables, molecular visualizations, and hands-on virtual labs bring chemical concepts to life <b>- no downloads or VR headset necessary.</b>"
                 values={{ b: wrapInBold }}
               />
             </p>
@@ -112,24 +112,24 @@ export function HomePage() {
           <Column padding gap="xl" className={styles.card}>
             <img src={configs.image("landing_communicate_thumb")} />
             <h3>
-              <FormattedMessage id="home-page.communicate-title" defaultMessage="Communicate and Collaborate" />
+              <FormattedMessage id="home-page.communicate-title" defaultMessage="Collaborate in Virtual Labs" />
             </h3>
             <p>
               <FormattedMessage
                 id="home-page.communicate-blurb"
-                defaultMessage="Choose an avatar to represent you, put on your headphones, and jump right in. Hubs makes it easy to stay connected with voice and text chat to other people in your private room."
+                defaultMessage="Join friends and classmates in shared VR chemistry labs. Explore atomic models together, trigger chemical reactions, and discuss molecular structures in real-time with voice and spatial chat."
               />
             </p>
           </Column>
           <Column padding gap="xl" className={styles.card}>
             <img src={configs.image("landing_media_thumb")} />
             <h3>
-              <FormattedMessage id="home-page.media-title" defaultMessage="An easier way to share media" />
+              <FormattedMessage id="home-page.media-title" defaultMessage="Interactive Chemistry Content" />
             </h3>
             <p>
               <FormattedMessage
                 id="home-page.media-blurb"
-                defaultMessage="Share content with others in your room by dragging and dropping photos, videos, PDF files, links, and 3D models into your space."
+                defaultMessage="Drag and drop 3D molecular models, share interactive element visualizations, view reaction simulations, and collaborate on chemistry experiments using photos, videos, PDFs, and 3D models in your space."
               />
             </p>
           </Column>

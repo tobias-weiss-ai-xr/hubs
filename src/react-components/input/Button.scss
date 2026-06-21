@@ -280,24 +280,32 @@
 }
 
 :local(.signin) {
-  border: 2px solid #007ab8;
+  border: 2px solid #22c55e;
   background-color: transparent;
-  color: #007ab8;
+  color: #22c55e;
   box-sizing: border-box;
   border-radius: 13px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  &:hover {
+    background-color: rgba(34, 197, 94, 0.1);
+  }
 }
 
 :local(.landing) {
-  border: 2px solid #007ab8;
-  background-color: #007ab8;
+  border: 2px solid #22c55e;
+  background-color: #22c55e;
   color: theme.$text5-color;
   box-sizing: border-box;
   border-radius: 13px;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.3);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
   &:hover {
-    background-color: #008bd1;
+    background-color: #16a34a;
+    box-shadow: 0 0 24px rgba(34, 197, 94, 0.45);
   }
   &:active {
-    background-color: #00699e;
+    background-color: #15803d;
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.25);
   }
 }
 
