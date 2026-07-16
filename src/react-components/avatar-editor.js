@@ -587,7 +587,7 @@ class AvatarEditor extends Component {
                       values={{
                         a: chunks => (
                           <a
-                            href={configs.link("promotion", "https://github.com/mozilla/hubs/blob/master/PROMOTION.md")}
+                            href={configs.link("promotion", "/promotion")}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -611,7 +611,7 @@ class AvatarEditor extends Component {
                       values={{
                         a: chunks => (
                           <a
-                            href={configs.link("remixing", "https://github.com/mozilla/hubs/blob/master/REMIXING.md")}
+                            href={configs.link("remixing", "/remixing")}
                             target="_blank"
                             rel="noopener noreferrer"
                           >

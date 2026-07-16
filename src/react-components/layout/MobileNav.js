@@ -36,7 +36,7 @@ export function MobileNav({ isHmc, showDocsLink, docsUrl, showSourceLink, showCo
                 )}
                 {showSourceLink && (
                   <li>
-                    <a href="https://github.com/mozilla/hubs">
+                    <a href="/developers">
                       <FormattedMessage id="header.source" defaultMessage="Developers" />
                     </a>
                   </li>
@@ -48,20 +48,7 @@ export function MobileNav({ isHmc, showDocsLink, docsUrl, showSourceLink, showCo
                     </a>
                   </li>
                 )}
-                {isHmc && (
-                  <li>
-                    <a href="/cloud">
-                      <FormattedMessage id="header.cloud" defaultMessage="Hubs Cloud" />
-                    </a>
-                  </li>
-                )}
-                {isHmc && (
-                  <li>
-                    <a href="/labs">
-                      <FormattedMessage id="header.labs" defaultMessage="Labs" />
-                    </a>
-                  </li>
-                )}
+
                 {isAdmin && (
                   <li>
                     <a style={{ marginLeft: 0 }} href="/admin" rel="noreferrer noopener">

@@ -11,7 +11,6 @@ import { SignInButton } from "../home/SignInButton";
 import { AppLogo } from "../misc/AppLogo";
 
 export function Header({
-  showCloud,
   enableSpoke,
   editorName,
   showDocsLink,
@@ -51,7 +50,7 @@ export function Header({
             )}
             {showSourceLink && (
               <li>
-                <a href="https://github.com/mozilla/hubs">
+                <a href="/developers">
                   <FormattedMessage id="header.source" defaultMessage="Developers" />
                 </a>
               </li>
@@ -63,20 +62,7 @@ export function Header({
                 </a>
               </li>
             )}
-            {showCloud && (
-              <li>
-                <a href="/cloud">
-                  <FormattedMessage id="header.cloud" defaultMessage="Hubs Cloud" />
-                </a>
-              </li>
-            )}
-            {isHmc && (
-              <li>
-                <a href="/labs">
-                  <FormattedMessage id="header.labs" defaultMessage="Labs" />
-                </a>
-              </li>
-            )}
+
             {isAdmin && (
               <li>
                 <a href="/admin" rel="noreferrer noopener">
@@ -115,7 +101,6 @@ export function Header({
 }
 
 Header.propTypes = {
-  showCloud: PropTypes.bool,
   enableSpoke: PropTypes.bool,
   editorName: PropTypes.string,
   showDocsLink: PropTypes.bool,

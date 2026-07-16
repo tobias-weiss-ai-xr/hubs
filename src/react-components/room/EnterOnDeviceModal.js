@@ -89,20 +89,6 @@ export function EnterOnDeviceModal({
                         defaultMessage="WebVR isn't supported in this browser, to enter with Oculus or SteamVR, use Firefox."
                       />
                     </small>
-                    <Button
-                      as="a"
-                      preset="accent2"
-                      href="https://www.mozilla.org/firefox/"
-                      target="_blank"
-                      rel="noreferrer noopener"
-                    >
-                      <span>
-                        <FormattedMessage
-                          id="enter-on-device-modal.download-firefox-button"
-                          defaultMessage="Download Firefox"
-                        />
-                      </span>
-                    </Button>
                   </>
                 ) : (
                   <>

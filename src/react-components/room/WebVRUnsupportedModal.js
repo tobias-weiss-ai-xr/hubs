@@ -19,17 +19,6 @@ export function WebVRUnsupportedModal({ onClose }) {
             defaultMessage="WebVR isn't supported in this browser, to enter with Oculus or SteamVR, use Firefox."
           />
         </p>
-        <Button
-          as="a"
-          preset="accent2"
-          href="https://www.mozilla.org/firefox/"
-          target="_blank"
-          rel="noreferrer noopener"
-        >
-          <span>
-            <FormattedMessage id="webvr-unsupported-modal.download-firefox-button" defaultMessage="Download Firefox" />
-          </span>
-        </Button>
         <p>
           <small>
             <FormattedMessage
