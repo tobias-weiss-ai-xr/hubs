@@ -28,7 +28,6 @@ export function RoomSignInModalContainer({ onClose, step, onSubmitEmail, message
         <WaitForVerification
           onCancel={onClose}
           email={cachedEmail}
-          showNewsletterSignup={configs.feature("show_newsletter_signup")}
         />
       )}
       {step === SignInStep.complete && <SignInComplete message={message} onContinue={onContinue} />}

@@ -258,10 +258,10 @@ module.exports = async (env, argv) => {
         CORS_PROXY_SERVER: localDevHost === "hubs.local" ? "hubs-proxy.local:4000" : "",
         NON_CORS_PROXY_DOMAINS: `${localDevHost},dev.reticulum.io`,
         BASE_ASSETS_PATH: "/",
-        RETICULUM_SERVER: localDevHost === "hubs.local" ? `${localDevHost}:4000` : localDevHost,
+        RETICULUM_SERVER: localDevHost === "hubs.local" ? `${localDevHost}:4001` : localDevHost,
         POSTGREST_SERVER: "",
         ITA_SERVER: "",
-        UPLOADS_HOST: localDevHost === "hubs.local" ? `https://${localDevHost}:4000` : `https://${localDevHost}`
+        UPLOADS_HOST: localDevHost === "hubs.local" ? `https://${localDevHost}:4001` : `https://${localDevHost}`
       });
     }
   }

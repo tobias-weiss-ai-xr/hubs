@@ -86,8 +86,8 @@ configs.feature = featureName => {
 let localDevImages = {};
 if (isLocalDevelopment) {
   localDevImages = {
-    logo: appLogo,
-    logo_dark: appLogoDark,
+    logo: appLogoDark,
+    logo_dark: appLogo,
     company_logo: companyLogo,
     editor_logo: sceneEditorLogo,
     home_background: homeHeroBackground

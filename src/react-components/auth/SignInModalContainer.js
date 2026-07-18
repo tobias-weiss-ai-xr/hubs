@@ -79,7 +79,6 @@ export function SignInModalContainer() {
         <WaitForVerification
           onCancel={cancel}
           email={email}
-          showNewsletterSignup={configs.feature("show_newsletter_signup")}
         />
       )}
     </SignInModal>

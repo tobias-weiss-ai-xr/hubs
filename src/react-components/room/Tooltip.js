@@ -19,7 +19,7 @@ let turnRightKey = "E";
 
 // TODO The API to map from physical key to character is experimental. Depending on prospects of this getting wider
 // implementation we may want to cook up our own polyfill based on observing key inputs
-if (window.navigator.keyboard !== undefined && window.navigator.keyboard.getLayoutMap) {
+if (window.navigator.keyboard != null && window.navigator.keyboard.getLayoutMap) {
   window.navigator.keyboard
     .getLayoutMap()
     .then(function (map) {

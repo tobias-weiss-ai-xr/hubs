@@ -72,15 +72,15 @@ module.exports = (env, argv) => {
 
   if (env.local) {
     Object.assign(process.env, {
-      HOST: "hubs.local",
-      RETICULUM_SOCKET_SERVER: "hubs.local",
-      CORS_PROXY_SERVER: "hubs-proxy.local:4000",
-      NON_CORS_PROXY_DOMAINS: "hubs.local,dev.reticulum.io",
-      BASE_ASSETS_PATH: "https://hubs.local:8989/",
-      RETICULUM_SERVER: "hubs.local:4000",
-      POSTGREST_SERVER: "",
-      ITA_SERVER: "turkey",
-      TIER: "p1"
+      HOST: process.env.HOST || "hubs.local",
+      RETICULUM_SOCKET_SERVER: process.env.RETICULUM_SOCKET_SERVER || "hubs.local",
+      CORS_PROXY_SERVER: process.env.CORS_PROXY_SERVER || "",
+      NON_CORS_PROXY_DOMAINS: process.env.NON_CORS_PROXY_DOMAINS || "hubs.local,hubs.chemie-lernen.org",
+      BASE_ASSETS_PATH: process.env.BASE_ASSETS_PATH || "",
+      RETICULUM_SERVER: process.env.RETICULUM_SERVER || "",
+      POSTGREST_SERVER: process.env.POSTGREST_SERVER || "",
+      ITA_SERVER: process.env.ITA_SERVER || "turkey",
+      TIER: process.env.TIER || "p1"
     });
   }
 

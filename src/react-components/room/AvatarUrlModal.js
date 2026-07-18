@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { ApplyButton } from "../input/Button";
 import { FormattedMessage } from "react-intl";
 import { Column } from "../layout/Column";
+import configs from "../../utils/configs";
 
 export function AvatarUrlModal({ onSubmit, onClose }) {
   const { handleSubmit, register } = useForm();
@@ -21,7 +22,7 @@ export function AvatarUrlModal({ onSubmit, onClose }) {
             required: true
           })}
           description={
-            <a href="https://hubs.mozilla.com/docs/intro-avatars.html" target="_blank" rel="noopener noreferrer">
+            <a href={configs.link("avatar_docs", "/docs/intro-avatars.html")} target="_blank" rel="noopener noreferrer">
               <FormattedMessage
                 id="avatar-url-modal.custom-avatar-docs-link"
                 defaultMessage="Learn more about custom avatars"

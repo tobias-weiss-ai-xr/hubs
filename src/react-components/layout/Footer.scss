@@ -74,6 +74,38 @@ footer {
   }
 }
 
+:local(.brand) {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-direction: column;
+
+  @media(min-width: theme.$breakpoint-lg) {
+    flex-direction: row;
+  }
+}
+
+:local(.logo-link) {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+
+  img {
+    height: 36px;
+  }
+}
+
+:local(.tagline) {
+  margin: 0;
+  font-size: theme.$font-size-sm;
+  color: theme.$text2-color;
+  text-align: center;
+
+  @media(min-width: theme.$breakpoint-lg) {
+    text-align: left;
+  }
+}
+
 :local(.company-logo) {
   height: 49px;
 

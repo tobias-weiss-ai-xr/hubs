@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import React from "react";
 import "./utils/configs";
+import configs from "./utils/configs";
 import "./react-components/styles/global.scss";
 import styles from "./assets/stylesheets/cloud.scss";
 import classNames from "classnames";
@@ -64,7 +65,7 @@ function HubsCloudPage() {
               </Button>
             </div>
             <div className={classNames(styles.getStarted, styles.center)}>
-              <Button as="a" preset="transparent" href="https://hubs.mozilla.com/docs/hubs-cloud-aws-quick-start.html">
+              <Button as="a" preset="transparent" href={configs.link("cloud_quick_start", "/docs/hubs-cloud-aws-quick-start.html")}>
                 <FormattedMessage id="hubs-cloud-page.get-started" defaultMessage="Quick Start Guide" />
               </Button>
             </div>

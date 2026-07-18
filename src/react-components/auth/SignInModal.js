@@ -136,7 +136,7 @@ SubmitEmail.propTypes = {
   onSubmitEmail: PropTypes.func.isRequired
 };
 
-export function WaitForVerification({ email, onCancel, showNewsletterSignup }) {
+export function WaitForVerification({ email, onCancel }) {
   return (
     <Column center padding>
       <FormattedMessage
@@ -145,27 +145,12 @@ export function WaitForVerification({ email, onCancel, showNewsletterSignup }) {
         // eslint-disable-next-line react/display-name
         values={{ email, p: chunks => <p>{chunks}</p> }}
       />
-      {showNewsletterSignup && (
-        <p>
-          <small>
-            <FormattedMessage
-              id="sign-in-modal.newsletter-signup-question"
-              defaultMessage="Want Hubs news sent to your inbox?"
-            />
-            <br />
-            <a href="https://eepurl.com/gX_fH9" target="_blank" rel="noopener noreferrer">
-              <FormattedMessage id="sign-in-modal.newsletter-signup-link" defaultMessage="Subscribe for updates" />
-            </a>
-          </small>
-        </p>
-      )}
       <CancelButton onClick={onCancel} />
     </Column>
   );
 }
 
 WaitForVerification.propTypes = {
-  showNewsletterSignup: PropTypes.bool,
   email: PropTypes.string.isRequired,
   onCancel: PropTypes.func.isRequired
 };

@@ -254,6 +254,7 @@ import detectConcurrentLoad from "./utils/concurrent-load-detector";
 import qsTruthy from "./utils/qs_truthy";
 import { WrappedIntlProvider } from "./react-components/wrapped-intl-provider";
 import { ExitReason } from "./react-components/room/ExitedRoomScreen";
+import { RoomAccessTokenEntryModal } from "./react-components/room/RoomAccessTokenEntryModal";
 import { OAuthScreenContainer } from "./react-components/auth/OAuthScreenContainer";
 import { SignInMessages } from "./react-components/auth/SignInModal";
 import { ThemeProvider } from "./react-components/styles/theme";
@@ -288,6 +289,8 @@ try {
 const isBotMode = qsTruthy("bot");
 const isTelemetryDisabled = qsTruthy("disable_telemetry");
 const isDebug = qsTruthy("debug");
+const roomAccessToken = qs.get("room_access_token");
+const roomAccessRequired = qsTruthy("room_access_required");
 
 let root;
 
@@ -303,6 +306,37 @@ if (!isOAuthModal) {
 
 if (qsTruthy("ecsDebug")) {
   exposeBitECSDebugHelpers();
+}
+
+function promptForRoomAccessToken(roomName) {
+  return new Promise((resolve, reject) => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const promptRoot = createRoot(container);
+
+    const cleanup = () => {
+      promptRoot.unmount();
+      if (container.parentNode) document.body.removeChild(container);
+    };
+
+    promptRoot.render(
+      <ThemeProvider store={store}>
+        <WrappedIntlProvider>
+          <RoomAccessTokenEntryModal
+            roomName={roomName}
+            onSubmit={token => {
+              cleanup();
+              resolve(token);
+            }}
+            onCancel={() => {
+              cleanup();
+              reject(new Error("cancelled"));
+            }}
+          />
+        </WrappedIntlProvider>
+      </ThemeProvider>
+    );
+  });
 }
 
 function setupLobbyCamera() {
@@ -634,7 +668,7 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data)
 
   scene.setAttribute("networked-scene", {
     room: hub.hub_id,
-    serverURL: `wss://${hub.host}:${hub.port}`, // TODO: This is confusing because this is the dialog host and port.
+    serverURL: `wss://${hub.host}/dialog`, // TODO: This is confusing because this is the dialog host and port.
     debug: !!isDebug,
     adapter: "phoenix"
   });
@@ -650,7 +684,7 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data)
       // Disconnect in case this is a re-entry
       APP.dialog.disconnect();
       APP.dialog.connect({
-        serverUrl: `wss://${hub.host}:${hub.port}`,
+        serverUrl: `wss://${hub.host}/dialog`,
         roomId: hub.hub_id,
         serverParams: { host: hub.host, port: hub.port, turn: hub.turn },
         scene,
@@ -1070,6 +1104,30 @@ document.addEventListener("DOMContentLoaded", async () => {
   let isReloading = false;
   window.addEventListener("beforeunload", () => (isReloading = true));
 
+  // Handle room access token flow — if room requires a token, show modal and validate via join API
+  let roomAccessPermsToken = null;
+  if (roomAccessRequired || roomAccessToken) {
+    try {
+      const token = roomAccessToken || (await promptForRoomAccessToken(APP.store.state.roomData && APP.store.state.roomData.name || `Room ${hubId}`));
+      const retUrl = getReticulumFetchUrl(`/api/v1/rooms/${hubId}/join`);
+      const res = await fetch(retUrl, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-room-access-token": token
+        },
+        body: JSON.stringify({ room_id: hubId })
+      });
+      if (!res.ok) throw new Error("Invalid room access token");
+      const joinData = await res.json();
+      roomAccessPermsToken = joinData.perms_token;
+    } catch (e) {
+      console.error("Room access token flow failed:", e);
+      remountUI({ roomUnavailableReason: ExitReason.denied });
+      return;
+    }
+  }
+
   const socket = await connectToReticulum(isDebug);
 
   socket.onClose(e => {
@@ -1181,7 +1239,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (oauthFlowPermsToken) {
     Cookies.remove(OAUTH_FLOW_PERMS_TOKEN_KEY);
   }
-  const hubPhxChannel = socket.channel(`hub:${hubId}`, APP.hubChannelParamsForPermsToken(oauthFlowPermsToken));
+  const hubPhxChannel = socket.channel(`hub:${hubId}`, APP.hubChannelParamsForPermsToken(oauthFlowPermsToken || roomAccessPermsToken));
   hubChannel.channel = hubPhxChannel;
   hubChannel.presence = new Presence(hubPhxChannel);
   const { rawOnJoin, rawOnLeave } = denoisePresence(presenceEventsForHub(events));
@@ -1442,7 +1500,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     APP.dialog.disconnect();
     APP.dialog.connect({
-      serverUrl: `wss://${host}:${port}`,
+      serverUrl: `wss://${host}/dialog`,
       roomId: APP.hub.hub_id,
       serverParams: { host, port, turn },
       scene,

@@ -4,6 +4,8 @@ import { FormattedMessage } from "react-intl";
 import styles from "./Footer.scss";
 import discordLogoUrl from "../../assets/images/discord-logo-small.png";
 import { Container } from "./Container";
+import configs from "../../utils/configs";
+import { AppLogo } from "../misc/AppLogo";
 
 export function Footer({
   hidePoweredBy,
@@ -18,23 +20,34 @@ export function Footer({
   appName,
   isHmc
 }) {
+  const tagline = configs.translation("app-description") || "Chemie lernen in 3D – interaktive VR-Räume für den Chemieunterricht";
+
   return (
     <footer>
       <Container as="div" className={styles.container}>
+        <div className={styles.brand}>
+          <a href="/" className={styles.logoLink}>
+            <AppLogo />
+          </a>
+          <p className={styles.tagline}>{tagline}</p>
+        </div>
         <div className={styles.poweredBy}>
           {!hidePoweredBy && (
-            <FormattedMessage
-              id="footer.powered-by"
-              defaultMessage="Powered by <a>Mozilla Hubs</a>"
-              values={{
-                // eslint-disable-next-line react/display-name
-                a: chunks => (
-                  <a className={styles.link} href="https://hubs.mozilla.com">
-                    {chunks}
-                  </a>
-                )
-              }}
-            />
+            <span>
+              <FormattedMessage
+                id="footer.powered-by"
+                defaultMessage="Powered by <a>{appName}</a>"
+                values={{
+                  appName,
+                  // eslint-disable-next-line react/display-name
+                  a: chunks => (
+                    <a className={styles.link} href={configs.link("home", "/")}>
+                      {chunks}
+                    </a>
+                  )
+                }}
+              />
+            </span>
           )}
         </div>
         <nav>
@@ -57,20 +70,6 @@ export function Footer({
               <li>
                 <a href="/whats-new">
                   <FormattedMessage id="footer.whats-new" defaultMessage="What's New" />
-                </a>
-              </li>
-            )}
-            {isHmc && (
-              <li>
-                <a target="_blank" rel="noopener noreferrer" href={"https://shop.spreadshirt.com/mozillaMR/"}>
-                  <FormattedMessage id="footer.hubs-merch" defaultMessage="Hubs Merch" />
-                </a>
-              </li>
-            )}
-            {isHmc && (
-              <li>
-                <a target="_blank" rel="noopener noreferrer" href={"https://hubs.mozilla.com/docs/hubs-faq.html"}>
-                  <FormattedMessage id="footer.FAQ" defaultMessage="FAQ" />
                 </a>
               </li>
             )}
