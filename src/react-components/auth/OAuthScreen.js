@@ -9,7 +9,8 @@ import { LegalMessage } from "./LegalMessage";
 
 const providerLabel = {
   discord: "Discord",
-  slack: "Slack"
+  slack: "Slack",
+  google: "Google"
 };
 export function OAuthScreen({ provider, redirectUrl, termsUrl, privacyUrl, ...rest }) {
   return (
