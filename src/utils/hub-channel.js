@@ -487,6 +487,12 @@ export default class HubChannel extends EventTarget {
     });
   };
 
+  fetchAnalytics = () => {
+    return fetch(`/api/v1/hubs/${this.hubId}/analytics`, { credentials: "same-origin" }).then(res =>
+      res.json()
+    );
+  };
+
   onProgressUpdated = handler => {
     this.channel.on("progress_updated", handler);
   };
