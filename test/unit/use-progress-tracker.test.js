@@ -228,7 +228,7 @@ test("track callback works independently of activate/deactivate lifecycle", asyn
 
 test("track silently swallows errors (error handling)", async t => {
   const channel = {
-    trackProgress(slug, type, data) {
+    trackProgress() {
       return Promise.reject(new Error("Server error"));
     }
   };
@@ -251,4 +251,108 @@ test("channel.trackProgress is not called when channel is missing (deactivate)",
   const tracker = createTracker(null);
   tracker.deactivate("molecule");
   t.pass();
+});
+
+// ── Additional edge cases ────────────────────────────────────────────────
+
+test("rapid successive activations on different slugs tracks each transition", async t => {
+  const channel = mockChannel();
+  const tracker = createTracker(channel);
+
+  tracker.activate("mol-1", "molecule");
+  tracker.activate("mol-2", "molecule"); // immediately switch
+  tracker.activate("mol-3", "molecule"); // immediately switch again
+
+  // Call 0: started mol-1
+  // Call 1: visited mol-1 (with time_spent_ms)
+  // Call 2: started mol-2
+  // Call 3: visited mol-2 (with time_spent_ms)
+  // Call 4: started mol-3
+
+  t.is(channel.calls.length, 5);
+  t.is(channel.calls[0].slug, "mol-1");
+  t.is(channel.calls[0].data.status, "started");
+  t.is(channel.calls[1].slug, "mol-1");
+  t.is(channel.calls[1].data.status, "visited");
+  t.is(channel.calls[2].slug, "mol-2");
+  t.is(channel.calls[2].data.status, "started");
+  t.is(channel.calls[3].slug, "mol-2");
+  t.is(channel.calls[3].data.status, "visited");
+  t.is(channel.calls[4].slug, "mol-3");
+  t.is(channel.calls[4].data.status, "started");
+
+  // All transition times should be numbers
+  t.true(typeof channel.calls[1].data.time_spent_ms === "number");
+  t.true(typeof channel.calls[3].data.time_spent_ms === "number");
+});
+
+test("activate with same slug but different type is idempotent (slug is the key)", async t => {
+  const channel = mockChannel();
+  const tracker = createTracker(channel);
+
+  tracker.activate("el-1", "molecule");
+  t.is(channel.calls[0].data.status, "started");
+  t.is(channel.calls[0].type, "molecule");
+
+  // Same slug, different type — should NOT transition since slug is the key
+  tracker.activate("el-1", "experiment");
+  t.is(channel.calls.length, 1, "No new calls — same slug is idempotent");
+
+  // The type parameter is passed to activate but the hook only keyed on slug
+  // This matches the real hook behavior (useEffect depends on elementSlug)
+});
+
+test("deactivate early before any activate does nothing", t => {
+  const channel = mockChannel();
+  const tracker = createTracker(channel);
+  // No element was ever activated
+  tracker.deactivate("molecule");
+  t.is(channel.calls.length, 0);
+});
+
+test("multiple deactivate calls without intermediate activate do nothing", async t => {
+  const channel = mockChannel();
+  const tracker = createTracker(channel);
+
+  tracker.activate("mol-1", "molecule");
+  t.is(channel.calls.length, 1);
+
+  tracker.deactivate("molecule");
+  t.is(channel.calls.length, 2);
+  t.is(channel.calls[1].data.status, "visited");
+
+  // Second deactivate should be a no-op (state reset)
+  tracker.deactivate("molecule");
+  t.is(channel.calls.length, 2);
+
+  // Third deactivate
+  tracker.deactivate("molecule");
+  t.is(channel.calls.length, 2);
+});
+
+test("track callback with channel that returns failing promise is caught", async t => {
+  let rejectionCount = 0;
+  const errorChannel = {
+    trackProgress() {
+      rejectionCount++;
+      return Promise.reject(new Error("Server error"));
+    }
+  };
+  const tracker = createTracker(errorChannel);
+
+  // track() calls should swallow errors via .catch(() => {})
+  tracker.track("el-1", "molecule", { status: "started" });
+  tracker.track("el-2", "molecule", { status: "started" });
+  await new Promise(r => setTimeout(r, 10));
+
+  t.is(rejectionCount, 2, "Both calls should have been attempted");
+  // No unhandled rejection should have propagated
+  t.pass();
+});
+
+test("activate with empty string slug is ignored", t => {
+  const channel = mockChannel();
+  const tracker = createTracker(channel);
+  tracker.activate("", "molecule");
+  t.is(channel.calls.length, 0);
 });
