@@ -65,6 +65,7 @@
       "./test/unit/**"
     ],
     "require": [
+      "./test/unit/helpers/setup-browser-env.js",
       "@babel/register",
       "esm"
     ]
@@ -175,6 +176,8 @@
     "@storybook/react-webpack5": "^7.0.20",
     "@storybook/storybook-deployer": "^2.8.16",
     "@svgr/webpack": "^6.3.1",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^14.3.1",
     "@types/three": "^0.141.0",
     "@types/webxr": "^0.5.0",
     "acorn": "^8.8.0",
@@ -200,6 +203,7 @@
     "html-loader": "^4.1.0",
     "html-webpack-plugin": "^5.5.0",
     "htmlhint": "^1.1.4",
+    "identity-obj-proxy": "^3.0.0",
     "internal-ip": "^7.0.0",
     "jsdom": "^20.0.0",
     "localstorage-memory": "^1.0.3",
