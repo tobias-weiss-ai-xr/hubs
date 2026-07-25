@@ -460,6 +460,50 @@ export default class HubChannel extends EventTarget {
   favorite = () => this.channel.push("favorite", {});
   unfavorite = () => this.channel.push("unfavorite", {});
 
+  startQuiz = (title, question, options, correctIndex) => {
+    return new Promise((resolve, reject) => {
+      this.channel
+        .push("start_quiz", { title, question, options, correct_index: correctIndex })
+        .receive("ok", resolve)
+        .receive("error", reject);
+    });
+  };
+
+  submitAnswer = (quizId, answerIndex) => {
+    return new Promise((resolve, reject) => {
+      this.channel
+        .push("submit_answer", { quiz_id: quizId, answer_index: answerIndex })
+        .receive("ok", resolve)
+        .receive("error", reject);
+    });
+  };
+
+  getQuizResults = quizId => {
+    return new Promise((resolve, reject) => {
+      this.channel
+        .push("get_quiz_results", { quiz_id: quizId })
+        .receive("ok", resolve)
+        .receive("error", reject);
+    });
+  };
+
+  endQuiz = quizId => {
+    return new Promise((resolve, reject) => {
+      this.channel
+        .push("end_quiz", { quiz_id: quizId })
+        .receive("ok", resolve)
+        .receive("error", reject);
+    });
+  };
+
+  onQuizStarted = handler => {
+    this.channel.on("quiz_started", handler);
+  };
+
+  onQuizEnded = handler => {
+    this.channel.on("quiz_ended", handler);
+  };
+
   disconnect = () => {
     if (this.channel) {
       this.channel.socket.disconnect();
