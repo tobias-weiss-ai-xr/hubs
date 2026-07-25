@@ -460,6 +460,37 @@ export default class HubChannel extends EventTarget {
   favorite = () => this.channel.push("favorite", {});
   unfavorite = () => this.channel.push("unfavorite", {});
 
+  trackProgress = (elementSlug, elementType, data = {}) => {
+    return new Promise((resolve, reject) => {
+      this.channel
+        .push("track_progress", { element_slug: elementSlug, element_type: elementType, ...data })
+        .receive("ok", resolve)
+        .receive("error", reject);
+    });
+  };
+
+  getMyProgress = () => {
+    return new Promise((resolve, reject) => {
+      this.channel
+        .push("get_my_progress", {})
+        .receive("ok", resolve)
+        .receive("error", reject);
+    });
+  };
+
+  getRoomProgress = () => {
+    return new Promise((resolve, reject) => {
+      this.channel
+        .push("get_room_progress", {})
+        .receive("ok", resolve)
+        .receive("error", reject);
+    });
+  };
+
+  onProgressUpdated = handler => {
+    this.channel.on("progress_updated", handler);
+  };
+
   disconnect = () => {
     if (this.channel) {
       this.channel.socket.disconnect();
