@@ -31,6 +31,8 @@
     "undeploy": "node ./scripts/undeploy.mjs",
     "test": "npm run lint && npm run test:unit",
     "test:unit": "ava",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "npx playwright install chromium --with-deps",
     "stats": "rimraf ./dist && webpack --mode=production --json",
     "spritesheet": "npm run spritesheet:system-action && npm run spritesheet:system-notice",
     "spritesheet:system-action": "spritesheet-js -f json -p src/assets/images/spritesheets/ --padding 8 --divisibleByTwo -n sprite-system-action-spritesheet --powerOfTwo src/assets/images/sprites/action/*",

@@ -1,5 +1,6 @@
 !.eslintrc.js
 src/vendor/*
+e2e/*
 src/loaders/basis_transcoder.worker.js
 scripts/bot/node_modules/
 scripts/docker/turkey-swaps/
