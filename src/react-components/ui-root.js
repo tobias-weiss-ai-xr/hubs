@@ -104,7 +104,9 @@ import { ChatContextProvider } from "./room/contexts/ChatContext";
 import ChatToolbarButton from "./room/components/ChatToolbarButton/ChatToolbarButton";
 import SeePlansCTA from "./room/components/SeePlansCTA/SeePlansCTA";
 import ProgressPanel from "./room/ProgressPanel";
+import AnalyticsDashboard from "./room/AnalyticsDashboard";
 import { ReactComponent as DocumentIcon } from "./icons/Document.svg";
+import { ReactComponent as InfoIcon } from "./icons/Info.svg";
 
 const avatarEditorDebug = qsTruthy("avatarEditorDebug");
 
@@ -1254,6 +1256,12 @@ class UIRoot extends Component {
             icon: DocumentIcon,
             onClick: () => this.setSidebar("progress")
           },
+          entered && {
+            id: "analytics",
+            label: "Analytics",
+            icon: InfoIcon,
+            onClick: () => this.setSidebar("analytics")
+          },
           (this.props.breakpoint === "sm" || this.props.breakpoint === "md") &&
             entered && {
               id: "leave-room",
@@ -1597,6 +1605,12 @@ class UIRoot extends Component {
                         <ProgressPanel
                           channel={this.props.hubChannel}
                           isTeacher={this.props.hubChannel.can("update_hub")}
+                          onClose={() => this.setSidebar(null)}
+                        />
+                      )}
+                      {this.state.sidebarId === "analytics" && (
+                        <AnalyticsDashboard
+                          channel={this.props.hubChannel}
                           onClose={() => this.setSidebar(null)}
                         />
                       )}

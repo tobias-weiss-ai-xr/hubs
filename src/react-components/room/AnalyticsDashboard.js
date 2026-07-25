@@ -1,0 +1,155 @@
+import React, { useCallback, useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import { Button } from "../input/Button";
+import { Column } from "../layout/Column";
+import styles from "./AnalyticsDashboard.scss";
+
+function formatTime(ms) {
+  if (!ms) return "";
+  const secs = Math.floor(ms / 1000);
+  if (secs < 60) return `${secs}s`;
+  return `${Math.floor(secs / 60)}m ${secs % 60}s`;
+}
+
+function RoomStatsCard({ room }) {
+  if (!room) return null;
+
+  return (
+    <div className={styles.section}>
+      <div className={styles.sectionTitle}>{room.name || "Room"}</div>
+      <div className={styles.statsGrid}>
+        <div className={styles.statCard}>
+          <div className={styles.statValue}>{room.current_occupants ?? "—"}</div>
+          <div className={styles.statLabel}>Present</div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statValue}>{room.members_in_room ?? "—"}</div>
+          <div className={styles.statLabel}>In Room</div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statValue}>{room.members_in_lobby ?? "—"}</div>
+          <div className={styles.statLabel}>In Lobby</div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statValue}>{room.max_ccu_24h ?? "—"}</div>
+          <div className={styles.statLabel}>Peak (24h)</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StudentProgressList({ students }) {
+  if (!students || students.length === 0) {
+    return <div className={styles.noData}>No student activity yet</div>;
+  }
+
+  return (
+    <div className={styles.section}>
+      <div className={styles.sectionTitle}>Students ({students.length})</div>
+      <div className={styles.studentList}>
+        {students.map((s, i) => {
+          const pct = s.total_elements > 0 ? Math.round((s.completed / s.total_elements) * 100) : 0;
+          return (
+            <div key={s.account_id || i} className={styles.studentRow}>
+              <span className={styles.studentName}>{s.identity_name}</span>
+              <span className={styles.studentStat}>
+                {s.completed}/{s.total_elements}
+              </span>
+              <div className={styles.progressBar}>
+                <div className={styles.progressFill} style={{ width: `${pct}%` }} />
+              </div>
+              <span className={styles.studentStat}>{pct}%</span>
+              <span className={styles.studentStat}>{formatTime(s.total_time_spent_ms)}</span>
+              {s.quiz_avg_score != null && (
+                <span className={styles.studentStat}>Q: {s.quiz_avg_score}%</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function QuizSummaryCard({ quizSummary }) {
+  if (!quizSummary || quizSummary.total_quizzes === 0) {
+    return (
+      <div className={styles.section}>
+        <div className={styles.sectionTitle}>Quizzes</div>
+        <div className={styles.noData}>No quizzes yet</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.section}>
+      <div className={styles.sectionTitle}>Quizzes</div>
+      <div className={styles.quizSummary}>
+        <div className={styles.quizStat}>
+          <div className={styles.quizStatValue}>{quizSummary.total_quizzes}</div>
+          <div className={styles.quizStatLabel}>Total</div>
+        </div>
+        <div className={styles.quizStat}>
+          <div className={styles.quizStatValue}>{quizSummary.total_participants}</div>
+          <div className={styles.quizStatLabel}>Participants</div>
+        </div>
+        <div className={styles.quizStat}>
+          <div className={styles.quizStatValue}>
+            {quizSummary.average_score != null ? `${quizSummary.average_score}%` : "—"}
+          </div>
+          <div className={styles.quizStatLabel}>Avg Score</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function AnalyticsDashboard({ channel, onClose }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await channel.fetchAnalytics();
+      setData(res);
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  }, [channel]);
+
+  useEffect(() => {
+    load();
+    channel.onProgressUpdated(load);
+  }, [channel, load]);
+
+  if (loading && !data) {
+    return <div className={styles.noData}>Loading…</div>;
+  }
+
+  return (
+    <Column>
+      <div className={styles.panel}>
+        {data ? (
+          <>
+            <RoomStatsCard room={data.room} />
+            <StudentProgressList students={data.students} />
+            <QuizSummaryCard quizSummary={data.quiz_summary} />
+          </>
+        ) : (
+          <div className={styles.noData}>Failed to load analytics</div>
+        )}
+        <Button onClick={load}>Refresh</Button>
+      </div>
+      <Button onClick={onClose}>Close</Button>
+    </Column>
+  );
+}
+
+AnalyticsDashboard.propTypes = {
+  channel: PropTypes.object.isRequired,
+  onClose: PropTypes.func.isRequired
+};

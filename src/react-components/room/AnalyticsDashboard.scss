@@ -1,0 +1,113 @@
+@use "../styles/theme.scss";
+
+:local(.panel) {
+  padding: 16px;
+}
+
+:local(.section) {
+  margin-bottom: 20px;
+}
+
+:local(.sectionTitle) {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #374151;
+}
+
+:local(.statsGrid) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+:local(.statCard) {
+  background: #f3f4f6;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+
+:local(.statValue) {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+}
+
+:local(.statLabel) {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+:local(.studentList) {
+  margin-bottom: 12px;
+}
+
+:local(.studentRow) {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 13px;
+}
+
+:local(.studentName) {
+  flex: 1;
+  font-weight: 500;
+}
+
+:local(.studentStat) {
+  color: #6b7280;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+:local(.progressBar) {
+  width: 60px;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-left: 8px;
+}
+
+:local(.progressFill) {
+  height: 100%;
+  background: #10b981;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+:local(.noData) {
+  color: #9ca3af;
+  text-align: center;
+  padding: 16px;
+  font-size: 13px;
+}
+
+:local(.quizSummary) {
+  display: flex;
+  gap: 12px;
+}
+
+:local(.quizStat) {
+  background: #eff6ff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  text-align: center;
+  flex: 1;
+}
+
+:local(.quizStatValue) {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e40af;
+}
+
+:local(.quizStatLabel) {
+  font-size: 10px;
+  color: #6b7280;
+}
