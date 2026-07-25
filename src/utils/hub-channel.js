@@ -1,7 +1,7 @@
 import jwtDecode from "jwt-decode";
 import { EventTarget } from "event-target-shim";
 import { Presence } from "phoenix";
-import { migrateChannelToSocket, discordBridgesForPresences, migrateToChannel } from "./phoenix-utils";
+import { migrateChannelToSocket, discordBridgesForPresences, migrateToChannel, fetchReticulumAuthenticated } from "./phoenix-utils";
 import configs from "./configs";
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -533,6 +533,10 @@ export default class HubChannel extends EventTarget {
 
   onProgressUpdated = handler => {
     this.channel.on("progress_updated", handler);
+  };
+
+  fetchAnalytics = () => {
+    return fetchReticulumAuthenticated(`/api/v1/hubs/${this.hubId}/analytics`);
   };
 
   disconnect = () => {

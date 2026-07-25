@@ -1,0 +1,102 @@
+.panel {
+  padding: 16px;
+}
+
+.header {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.statGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.statCard {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  background: #f9fafb;
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+.studentList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.studentRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 13px;
+}
+
+.studentName {
+  flex: 1;
+}
+
+.studentProgress {
+  color: #6b7280;
+}
+
+.quizList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quizCard {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.quizQuestion {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.quizStat {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.noData {
+  color: #9ca3af;
+  text-align: center;
+  padding: 24px;
+  font-size: 14px;
+}
