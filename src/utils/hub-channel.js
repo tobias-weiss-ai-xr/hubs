@@ -539,6 +539,16 @@ export default class HubChannel extends EventTarget {
     return fetchReticulumAuthenticated(`/api/v1/hubs/${this.hubId}/analytics`);
   };
 
+  fetchWorksheets = () => {
+    return fetchReticulumAuthenticated(`/api/v1/hubs/${this.hubId}/worksheets`);
+  };
+
+  createWorksheet = (title, steps) => {
+    return fetchReticulumAuthenticated(`/api/v1/hubs/${this.hubId}/worksheets`, "POST", {
+      worksheet: { title, steps }
+    });
+  };
+
   disconnect = () => {
     if (this.channel) {
       this.channel.socket.disconnect();

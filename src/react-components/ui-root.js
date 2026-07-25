@@ -105,6 +105,7 @@ import ChatToolbarButton from "./room/components/ChatToolbarButton/ChatToolbarBu
 import { ReactComponent as DocumentIcon } from "./icons/Document.svg";
 import { ReactComponent as InfoIcon } from "./icons/Info.svg";
 import ProgressPanel from "./room/ProgressPanel";
+import WorksheetPanel from "./room/WorksheetPanel";
 import AnalyticsDashboard from "./room/AnalyticsDashboard";
 import SeePlansCTA from "./room/components/SeePlansCTA/SeePlansCTA";
 
@@ -1263,6 +1264,12 @@ class UIRoot extends Component {
               icon: InfoIcon,
               onClick: () => this.setSidebar("analytics")
             },
+            entered && {
+              id: "worksheet",
+              label: "Worksheets",
+              icon: DocumentIcon,
+              onClick: () => this.setSidebar("worksheet")
+            },
           (this.props.breakpoint === "sm" || this.props.breakpoint === "md") &&
             entered && {
               id: "leave-room",
@@ -1611,6 +1618,13 @@ class UIRoot extends Component {
                       )}
                       {this.state.sidebarId === "analytics" && (
                         <AnalyticsDashboard
+                          channel={this.props.hubChannel}
+                          isTeacher={this.props.hubChannel.can("update_hub")}
+                          onClose={() => this.setSidebar(null)}
+                        />
+                      )}
+                      {this.state.sidebarId === "worksheet" && (
+                        <WorksheetPanel
                           channel={this.props.hubChannel}
                           isTeacher={this.props.hubChannel.can("update_hub")}
                           onClose={() => this.setSidebar(null)}
