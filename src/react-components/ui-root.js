@@ -103,6 +103,8 @@ import { usePermissions } from "./room/hooks/usePermissions";
 import { ChatContextProvider } from "./room/contexts/ChatContext";
 import ChatToolbarButton from "./room/components/ChatToolbarButton/ChatToolbarButton";
 import SeePlansCTA from "./room/components/SeePlansCTA/SeePlansCTA";
+import ProgressPanel from "./room/ProgressPanel";
+import { ReactComponent as DocumentIcon } from "./icons/Document.svg";
 
 const avatarEditorDebug = qsTruthy("avatarEditorDebug");
 
@@ -1246,6 +1248,12 @@ class UIRoot extends Component {
               icon: CameraIcon,
               onClick: () => this.toggleStreamerMode()
             },
+          entered && {
+            id: "progress",
+            label: "Progress",
+            icon: DocumentIcon,
+            onClick: () => this.setSidebar("progress")
+          },
           (this.props.breakpoint === "sm" || this.props.breakpoint === "md") &&
             entered && {
               id: "leave-room",
@@ -1584,6 +1592,13 @@ class UIRoot extends Component {
                       )}
                       {this.state.sidebarId === "ecs-debug" && (
                         <ECSDebugSidebarContainer onClose={() => this.setSidebar(null)} />
+                      )}
+                      {this.state.sidebarId === "progress" && (
+                        <ProgressPanel
+                          channel={this.props.hubChannel}
+                          isTeacher={this.props.hubChannel.can("update_hub")}
+                          onClose={() => this.setSidebar(null)}
+                        />
                       )}
                     </>
                   ) : undefined
