@@ -346,7 +346,7 @@ module.exports = async (env, argv) => {
         }
       },
       server: {
-        type: "https",
+        type: "http",
         options: createHTTPSConfig()
       },
       host: "0.0.0.0",
