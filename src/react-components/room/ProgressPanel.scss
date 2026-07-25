@@ -1,0 +1,96 @@
+.panel {
+padding: 16px;
+}
+
+.header {
+font-size: 16px;
+font-weight: 600;
+margin-bottom: 12px;
+}
+
+.studentList {
+margin-bottom: 16px;
+}
+
+.studentCard {
+border: 1px solid #e5e7eb;
+border-radius: 8px;
+padding: 12px;
+margin-bottom: 8px;
+background: #f9fafb;
+}
+
+.studentName {
+font-weight: 600;
+margin-bottom: 8px;
+font-size: 14px;
+}
+
+.elementList {
+display: flex;
+flex-direction: column;
+gap: 4px;
+}
+
+.elementRow {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 4px 0;
+font-size: 13px;
+}
+
+.elementName {
+flex: 1;
+}
+
+.badge {
+padding: 2px 8px;
+border-radius: 4px;
+font-size: 11px;
+font-weight: 600;
+text-transform: uppercase;
+}
+
+.badgeVisited {
+background: #fef3c7;
+color: #92400e;
+}
+
+.badgeStarted {
+background: #dbeafe;
+color: #1e40af;
+}
+
+.badgeCompleted {
+background: #d1fae5;
+color: #065f46;
+}
+
+.score {
+font-size: 12px;
+color: #6b7280;
+margin-left: 8px;
+}
+
+.time {
+font-size: 11px;
+color: #9ca3af;
+margin-left: 8px;
+}
+
+.noData {
+color: #9ca3af;
+text-align: center;
+padding: 24px;
+}
+
+.toggleBtn {
+background: none;
+border: 1px solid #d1d5db;
+border-radius: 4px;
+padding: 4px 12px;
+cursor: pointer;
+font-size: 12px;
+margin-bottom: 8px;
+}
