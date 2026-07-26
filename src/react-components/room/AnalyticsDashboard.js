@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { FormattedMessage } from "react-intl";
 import { Button } from "../input/Button";
 import { Column } from "../layout/Column";
 import styles from "./AnalyticsDashboard.scss";
-
-/* eslint-disable @calm/react-intl/missing-formatted-message */
 
 function formatTime(ms) {
   if (!ms) return "";
@@ -18,23 +17,33 @@ function RoomStatsCard({ room }) {
 
   return (
     <div className={styles.section}>
-      <div className={styles.sectionTitle}>{room.name || "Room"}</div>
+      <div className={styles.sectionTitle}>
+        {room.name || <FormattedMessage id="analytics-dashboard.room-label" defaultMessage="Room" />}
+      </div>
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
           <div className={styles.statValue}>{room.current_occupants ?? "—"}</div>
-          <div className={styles.statLabel}>Present</div>
+          <div className={styles.statLabel}>
+            <FormattedMessage id="analytics-dashboard.stat.present" defaultMessage="Present" />
+          </div>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statValue}>{room.members_in_room ?? "—"}</div>
-          <div className={styles.statLabel}>In Room</div>
+          <div className={styles.statLabel}>
+            <FormattedMessage id="analytics-dashboard.stat.in-room" defaultMessage="In Room" />
+          </div>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statValue}>{room.members_in_lobby ?? "—"}</div>
-          <div className={styles.statLabel}>In Lobby</div>
+          <div className={styles.statLabel}>
+            <FormattedMessage id="analytics-dashboard.stat.in-lobby" defaultMessage="In Lobby" />
+          </div>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statValue}>{room.max_ccu_24h ?? "—"}</div>
-          <div className={styles.statLabel}>Peak (24h)</div>
+          <div className={styles.statLabel}>
+            <FormattedMessage id="analytics-dashboard.stat.peak-24h" defaultMessage="Peak (24h)" />
+          </div>
         </div>
       </div>
     </div>
@@ -53,12 +62,22 @@ RoomStatsCard.propTypes = {
 
 function StudentProgressList({ students }) {
   if (!students || students.length === 0) {
-    return <div className={styles.noData}>No student activity yet</div>;
+    return (
+      <div className={styles.noData}>
+        <FormattedMessage id="analytics-dashboard.no-students" defaultMessage="No student activity yet" />
+      </div>
+    );
   }
 
   return (
     <div className={styles.section}>
-      <div className={styles.sectionTitle}>Students ({students.length})</div>
+      <div className={styles.sectionTitle}>
+        <FormattedMessage
+          id="analytics-dashboard.students-header"
+          defaultMessage="Students ({count})"
+          values={{ count: students.length }}
+        />
+      </div>
       <div className={styles.studentList}>
         {students.map((s, i) => {
           const pct = s.total_elements > 0 ? Math.round((s.completed / s.total_elements) * 100) : 0;
@@ -73,7 +92,15 @@ function StudentProgressList({ students }) {
               </div>
               <span className={styles.studentStat}>{pct}%</span>
               <span className={styles.studentStat}>{formatTime(s.total_time_spent_ms)}</span>
-              {s.quiz_avg_score != null && <span className={styles.studentStat}>Q: {s.quiz_avg_score}%</span>}
+              {s.quiz_avg_score != null && (
+                <span className={styles.studentStat}>
+                  <FormattedMessage
+                    id="analytics-dashboard.quiz-score"
+                    defaultMessage="Q: {score}%"
+                    values={{ score: s.quiz_avg_score }}
+                  />
+                </span>
+              )}
             </div>
           );
         })}
@@ -99,29 +126,41 @@ function QuizSummaryCard({ quizSummary }) {
   if (!quizSummary || quizSummary.total_quizzes === 0) {
     return (
       <div className={styles.section}>
-        <div className={styles.sectionTitle}>Quizzes</div>
-        <div className={styles.noData}>No quizzes yet</div>
+        <div className={styles.sectionTitle}>
+          <FormattedMessage id="analytics-dashboard.quizzes-header" defaultMessage="Quizzes" />
+        </div>
+        <div className={styles.noData}>
+          <FormattedMessage id="analytics-dashboard.no-quizzes" defaultMessage="No quizzes yet" />
+        </div>
       </div>
     );
   }
 
   return (
     <div className={styles.section}>
-      <div className={styles.sectionTitle}>Quizzes</div>
+      <div className={styles.sectionTitle}>
+        <FormattedMessage id="analytics-dashboard.quizzes-header" defaultMessage="Quizzes" />
+      </div>
       <div className={styles.quizSummary}>
         <div className={styles.quizStat}>
           <div className={styles.quizStatValue}>{quizSummary.total_quizzes}</div>
-          <div className={styles.quizStatLabel}>Total</div>
+          <div className={styles.quizStatLabel}>
+            <FormattedMessage id="analytics-dashboard.total-label" defaultMessage="Total" />
+          </div>
         </div>
         <div className={styles.quizStat}>
           <div className={styles.quizStatValue}>{quizSummary.total_participants}</div>
-          <div className={styles.quizStatLabel}>Participants</div>
+          <div className={styles.quizStatLabel}>
+            <FormattedMessage id="analytics-dashboard.participants-label" defaultMessage="Participants" />
+          </div>
         </div>
         <div className={styles.quizStat}>
           <div className={styles.quizStatValue}>
             {quizSummary.average_score != null ? `${quizSummary.average_score}%` : "—"}
           </div>
-          <div className={styles.quizStatLabel}>Avg Score</div>
+          <div className={styles.quizStatLabel}>
+            <FormattedMessage id="analytics-dashboard.avg-score-label" defaultMessage="Avg Score" />
+          </div>
         </div>
       </div>
     </div>
@@ -158,7 +197,11 @@ export default function AnalyticsDashboard({ channel, onClose }) {
   }, [channel, load]);
 
   if (loading && !data) {
-    return <div className={styles.noData}>Loading…</div>;
+    return (
+      <div className={styles.noData}>
+        <FormattedMessage id="analytics-dashboard.loading" defaultMessage="Loading…" />
+      </div>
+    );
   }
 
   return (
@@ -171,11 +214,17 @@ export default function AnalyticsDashboard({ channel, onClose }) {
             <QuizSummaryCard quizSummary={data.quiz_summary} />
           </>
         ) : (
-          <div className={styles.noData}>Failed to load analytics</div>
+          <div className={styles.noData}>
+            <FormattedMessage id="analytics-dashboard.error" defaultMessage="Failed to load analytics" />
+          </div>
         )}
-        <Button onClick={load}>Refresh</Button>
+        <Button onClick={load}>
+          <FormattedMessage id="analytics-dashboard.refresh" defaultMessage="Refresh" />
+        </Button>
       </div>
-      <Button onClick={onClose}>Close</Button>
+      <Button onClick={onClose}>
+        <FormattedMessage id="analytics-dashboard.close" defaultMessage="Close" />
+      </Button>
     </Column>
   );
 }

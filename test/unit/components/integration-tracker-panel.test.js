@@ -2,6 +2,7 @@
 import test from "ava";
 import React from "react";
 import { render, screen, act, waitFor, cleanup } from "@testing-library/react";
+import { IntlProvider } from "react-intl";
 import ProgressPanel from "../../../src/react-components/room/ProgressPanel";
 import useProgressTracker from "../../../src/react-components/room/hooks/useProgressTracker";
 
@@ -63,6 +64,10 @@ async function flush() {
   await act(() => Promise.resolve());
 }
 
+function wrap(ui) {
+  return React.createElement(IntlProvider, { locale: "en" }, ui);
+}
+
 // ── Test component that wires the hook + panel ─────────────────────────────
 
 function TestHarness({ channel }) {
@@ -81,7 +86,7 @@ function TestHarness({ channel }) {
 test.serial("hook tracks started status + panel displays it after update event", async t => {
   const channel = createPersistentChannel();
 
-  render(React.createElement(TestHarness, { channel }));
+  render(wrap(React.createElement(TestHarness, { channel })));
 
   // Panel loaded with empty data
   await waitFor(() => t.truthy(byText("0/0")));
@@ -108,14 +113,16 @@ test.serial("hook tracks completed status after element change", async t => {
   // Helper to render a component with useProgressTracker + ProgressPanel
   function renderWithTracker(slug) {
     return render(
-      React.createElement(() => {
-        useProgressTracker(channel, slug, "element");
-        return React.createElement(ProgressPanel, {
-          channel,
-          isTeacher: false,
-          onClose: () => {}
-        });
-      })
+      wrap(
+        React.createElement(() => {
+          useProgressTracker(channel, slug, "element");
+          return React.createElement(ProgressPanel, {
+            channel,
+            isTeacher: false,
+            onClose: () => {}
+          });
+        })
+      )
     );
   }
 
@@ -158,7 +165,7 @@ test.serial("hook tracks completed status after element change", async t => {
 test.serial("channel data flows through hook → storage → panel correctly", async t => {
   const channel = createPersistentChannel();
 
-  render(React.createElement(TestHarness, { channel }));
+  render(wrap(React.createElement(TestHarness, { channel })));
 
   // Initial empty state
   await waitFor(() => t.truthy(byText("0/0")));

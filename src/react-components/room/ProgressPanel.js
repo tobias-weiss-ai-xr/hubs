@@ -1,7 +1,6 @@
-/* eslint-disable @calm/react-intl/missing-formatted-message */
-
 import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { FormattedMessage } from "react-intl";
 import { Button } from "../input/Button";
 import { Column } from "../layout/Column";
 import styles from "./ProgressPanel.scss";
@@ -12,7 +11,11 @@ const STATUS_BADGE = {
   completed: styles.badgeCompleted
 };
 
-const STATUS_LABEL = { visited: "Visited", started: "In Progress", completed: "Done" };
+const STATUS_LABEL = {
+  visited: <FormattedMessage id="progress-panel.status.visited" defaultMessage="Visited" />,
+  started: <FormattedMessage id="progress-panel.status.started" defaultMessage="In Progress" />,
+  completed: <FormattedMessage id="progress-panel.status.completed" defaultMessage="Done" />
+};
 
 function formatTime(ms) {
   if (!ms) return "";
@@ -67,7 +70,11 @@ function StudentCard({ student, expanded, onToggle }) {
       )}
       {entries.length > 0 && (
         <button className={styles.toggleBtn} onClick={onToggle}>
-          {expanded ? "Collapse" : "Details"}
+          {expanded ? (
+            <FormattedMessage id="progress-panel.collapse" defaultMessage="Collapse" />
+          ) : (
+            <FormattedMessage id="progress-panel.details" defaultMessage="Details" />
+          )}
         </button>
       )}
     </div>
@@ -108,12 +115,18 @@ function TeacherView({ channel }) {
   }, []);
 
   if (students.length === 0) {
-    return <div className={styles.noData}>No student activity yet</div>;
+    return (
+      <div className={styles.noData}>
+        <FormattedMessage id="progress-panel.no-student-activity" defaultMessage="No student activity yet" />
+      </div>
+    );
   }
 
   return (
     <div className={styles.panel}>
-      <div className={styles.header}>Room Progress</div>
+      <div className={styles.header}>
+        <FormattedMessage id="progress-panel.room-progress" defaultMessage="Room Progress" />
+      </div>
       <div className={styles.studentList}>
         {students.map((s, i) => (
           <StudentCard
@@ -124,7 +137,9 @@ function TeacherView({ channel }) {
           />
         ))}
       </div>
-      <Button onClick={load}>Refresh</Button>
+      <Button onClick={load}>
+        <FormattedMessage id="progress-panel.refresh" defaultMessage="Refresh" />
+      </Button>
     </div>
   );
 }
@@ -155,14 +170,22 @@ function StudentView({ channel }) {
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
-        My Progress — {completed}/{entries.length} ({pct}%)
+        <FormattedMessage
+          id="progress-panel.my-progress"
+          defaultMessage="My Progress — {completed}/{total} ({pct}%)"
+          values={{ completed, total: entries.length, pct }}
+        />
       </div>
       <div className={styles.elementList}>
         {entries.map(e => (
           <StudentProgressEntry key={e.element_slug} entry={e} />
         ))}
       </div>
-      {entries.length === 0 && <div className={styles.noData}>No progress yet</div>}
+      {entries.length === 0 && (
+        <div className={styles.noData}>
+          <FormattedMessage id="progress-panel.no-progress" defaultMessage="No progress yet" />
+        </div>
+      )}
     </div>
   );
 }
@@ -175,7 +198,9 @@ export default function ProgressPanel({ channel, isTeacher, onClose }) {
   return (
     <Column>
       {isTeacher ? <TeacherView channel={channel} /> : <StudentView channel={channel} />}
-      <Button onClick={onClose}>Close</Button>
+      <Button onClick={onClose}>
+        <FormattedMessage id="progress-panel.close" defaultMessage="Close" />
+      </Button>
     </Column>
   );
 }
