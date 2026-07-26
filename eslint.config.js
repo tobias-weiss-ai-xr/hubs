@@ -17,6 +17,7 @@ module.exports = [
       "scripts/docker/turkey-swaps/",
       "**/node_modules/",
       "dist/",
+      "e2e/*",
       "*.min.js"
     ]
   },
