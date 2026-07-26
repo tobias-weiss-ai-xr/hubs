@@ -1,14 +1,17 @@
-import React, { useState, useCallback } from "react";
-import { FormattedMessage } from "react-intl";
+import React, { useState, useCallback, useRef } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 import { Button } from "../input/Button";
-import ElementSelector from "./ElementSelector";
+import ElementSelector from "../room/ElementSelector";
 import styles from "./ChemistryCreateRoomButton.scss";
 
 export function ChemistryCreateRoomButton() {
+  const intl = useIntl();
   const [showSelector, setShowSelector] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const overlayRef = useRef(null);
 
-  const handleSelectElement = useCallback(async symbol => {
+  const handleClose = useCallback(async symbol => {
     if (!symbol) {
       setShowSelector(false);
       return;
@@ -17,70 +20,76 @@ export function ChemistryCreateRoomButton() {
     setCreating(true);
 
     try {
-      const name = `${symbol} Chemieraum`;
+      const token = window.APP?.store?.state?.credentials?.token;
+      const headers = { "content-type": "application/json" };
+      if (token) {
+        headers.authorization = `bearer ${token}`;
+      }
+
       const resp = await fetch("/api/v1/rooms/classroom", {
         method: "POST",
-        headers: {
-          "content-type": "application/json",
-          ...(window.APP?.store?.state?.credentials?.token
-            ? { authorization: `bearer ${window.APP.store.state.credentials.token}` }
-            : {})
-        },
+        headers,
         body: JSON.stringify({
-          name,
-          user_data: {
-            chemistry: {
-              symbol
-            }
-          }
+          name: `${symbol} Chemieraum`,
+          user_data: { chemistry: { symbol } }
         })
       });
 
       if (resp.ok) {
         const data = await resp.json();
-        // Redirect to the created room
-        if (data.url) {
-          window.location.href = data.url;
-        } else {
-          window.location.href = `/hub.html?hub_id=${data.room_id}`;
-        }
+        window.location.href = data.url || `/hub.html?hub_id=${data.room_id}`;
       } else {
-        const err = await resp.json().catch(() => ({ error: "Failed to create room" }));
-        alert(err.error || "Failed to create chemistry room");
+        const err = await resp.json().catch(() => ({ error: "Fehler beim Erstellen des Raums" }));
+        setErrorMessage(err.error || "Fehler beim Erstellen des Raums");
         setCreating(false);
         setShowSelector(false);
       }
     } catch (e) {
-      alert(e.message || "Network error");
+      setErrorMessage(e.message || "Netzwerkfehler");
       setCreating(false);
       setShowSelector(false);
     }
   }, []);
 
+  const handleOpen = useCallback(() => {
+    setErrorMessage(null);
+    setShowSelector(true);
+  }, []);
+
   return (
     <>
-      <Button
-        thick
-        preset="landing"
-        onClick={() => setShowSelector(true)}
-        disabled={creating}
-        className={styles.chemBtn}
-      >
+      <Button thick preset="landing" onClick={handleOpen} disabled={creating} className={styles.chemBtn}>
         {creating ? (
-          <FormattedMessage id="create-chemistry-room.creating" defaultMessage="Creating…" />
+          <FormattedMessage id="create-chemistry-room.creating" defaultMessage="Erstellen…" />
         ) : (
-          <FormattedMessage id="create-chemistry-room.button" defaultMessage="🧪 Chemistry Room" />
+          <FormattedMessage id="create-chemistry-room.button" defaultMessage="🧪 Chemieraum" />
         )}
       </Button>
 
+      {errorMessage && (
+        <div className={styles.errorBanner} role="alert">
+          {errorMessage}
+          <button className={styles.errorClose} onClick={() => setErrorMessage(null)}>
+            ×
+          </button>
+        </div>
+      )}
+
       {showSelector && (
-        <div className={styles.overlay} onClick={() => setShowSelector(false)}>
+        <div
+          className={styles.overlay}
+          ref={overlayRef}
+          onClick={e => {
+            if (e.target === overlayRef.current) {
+              setShowSelector(false);
+            }
+          }}
+          role="dialog"
+          aria-modal="true"
+          aria-label={intl.formatMessage({ id: "element-selector.overlay-label", defaultMessage: "Element Selector" })}
+        >
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
-            <ElementSelector
-              selectedSymbol={null}
-              onSelect={el => handleSelectElement(el.symbol)}
-              onClose={() => setShowSelector(false)}
-            />
+            <ElementSelector onClose={handleClose} />
           </div>
         </div>
       )}

@@ -23,8 +23,13 @@ export default function StudentDashboard({ channel }) {
 
   useEffect(() => {
     loadData();
-    channel.onProgressUpdated(loadData);
-  }, [channel, loadData]);
+    const detach = channel.onProgressUpdated(loadData);
+    return () => {
+      if (typeof detach === "function") {
+        detach();
+      }
+    };
+  }, [loadData, channel]);
 
   const entries = myProgress?.entries || [];
   const completed = entries.filter(e => e.status === "completed").length;
@@ -37,13 +42,17 @@ export default function StudentDashboard({ channel }) {
         <FormattedMessage id="student-dashboard.title" defaultMessage="My Learning Progress" />
       </div>
 
-      {loading && !myProgress && (
-        <div className={styles.loading}>
+      {loading && entries.length === 0 && !error && (
+        <div className={styles.loading} role="status">
           <FormattedMessage id="student-dashboard.loading" defaultMessage="Loading progress..." />
         </div>
       )}
 
-      {error && <div className={styles.error}>{error}</div>}
+      {error && (
+        <div className={styles.error} role="alert">
+          {error}
+        </div>
+      )}
 
       {!loading && entries.length === 0 && !error && (
         <div className={styles.empty}>
@@ -77,7 +86,13 @@ export default function StudentDashboard({ channel }) {
             </div>
           </div>
 
-          <div className={styles.progressBar}>
+          <div
+            className={styles.progressBar}
+            role="progressbar"
+            aria-valuenow={pct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
             <div className={styles.progressFill} style={{ width: `${pct}%` }} />
           </div>
 
@@ -95,7 +110,11 @@ export default function StudentDashboard({ channel }) {
                 </span>
                 {entry.score != null && (
                   <span className={styles.score}>
-                    {entry.score}/{entry.max_score || "—"}
+                    <FormattedMessage
+                      id="student-dashboard.score"
+                      defaultMessage="{score}/{max}"
+                      values={{ score: entry.score, max: entry.max_score || "—" }}
+                    />
                   </span>
                 )}
                 {entry.time_spent_ms > 0 && (
@@ -113,13 +132,16 @@ export default function StudentDashboard({ channel }) {
         </>
       )}
 
-      <div className={styles.refresh} onClick={loadData}>
+      <button className={styles.refresh} onClick={loadData} disabled={loading}>
         <FormattedMessage id="student-dashboard.refresh" defaultMessage="↻ Refresh" />
-      </div>
+      </button>
     </div>
   );
 }
 
 StudentDashboard.propTypes = {
-  channel: PropTypes.object.isRequired
+  channel: PropTypes.shape({
+    getMyProgress: PropTypes.func.isRequired,
+    onProgressUpdated: PropTypes.func.isRequired
+  }).isRequired
 };

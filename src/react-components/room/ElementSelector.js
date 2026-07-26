@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import styles from "./ElementSelector.scss";
@@ -161,6 +161,9 @@ function ElementCell({ element, selected, onClick }) {
       style={{ borderColor: selected ? color : "transparent" }}
       onClick={() => onClick(element)}
       title={`${element.name} (${element.symbol})`}
+      aria-pressed={selected}
+      aria-label={`${element.name} (${element.symbol}), ${GROUP_LABELS[element.group_type] || ""}`}
+      data-testid={`element-cell-${element.symbol}`}
     >
       <span className={styles.number}>{element.number}</span>
       <span className={styles.symbol}>{element.symbol}</span>
@@ -170,18 +173,35 @@ function ElementCell({ element, selected, onClick }) {
 }
 
 ElementCell.propTypes = {
-  element: PropTypes.object.isRequired,
+  element: PropTypes.shape({
+    symbol: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    number: PropTypes.number.isRequired,
+    group: PropTypes.number.isRequired,
+    period: PropTypes.number.isRequired,
+    block: PropTypes.string,
+    group_type: PropTypes.string.isRequired
+  }).isRequired,
   selected: PropTypes.bool,
   onClick: PropTypes.func.isRequired
 };
 
-export default function ElementSelector({ selectedSymbol, onSelect, onClose }) {
-  // Group elements by period for the grid
-  const periods = {};
-  for (const el of ELEMENTS) {
-    if (!periods[el.period]) periods[el.period] = [];
-    periods[el.period].push(el);
-  }
+function Legend() {
+  return (
+    <div className={styles.legend}>
+      {Object.entries(GROUP_LABELS).map(([key, label]) => (
+        <span key={key} className={styles.legendItem}>
+          <span className={styles.legendDot} style={{ backgroundColor: GROUP_COLORS[key] }} />
+          {label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+export default function ElementSelector({ onSelect, onClose }) {
+  const [selectedSymbol, setSelectedSymbol] = useState(null);
+  const selectedEl = ELEMENTS.find(el => el.symbol === selectedSymbol);
 
   // La–Lu (57-71) and Ac–Lr (89-103) sit below the main table
   const mainElements = ELEMENTS.filter(
@@ -190,7 +210,23 @@ export default function ElementSelector({ selectedSymbol, onSelect, onClose }) {
   const lanthanides = ELEMENTS.filter(el => el.number >= 57 && el.number <= 71);
   const actinides = ELEMENTS.filter(el => el.number >= 89 && el.number <= 103);
 
-  const selectedEl = ELEMENTS.find(el => el.symbol === selectedSymbol);
+  const handleCellClick = useCallback(
+    element => {
+      setSelectedSymbol(element.symbol);
+      if (onSelect) onSelect(element);
+    },
+    [onSelect]
+  );
+
+  const handleConfirm = useCallback(() => {
+    if (selectedEl) {
+      onClose(selectedEl.symbol);
+    }
+  }, [selectedEl, onClose]);
+
+  const handleCancel = useCallback(() => {
+    onClose(null);
+  }, [onClose]);
 
   return (
     <div className={styles.container}>
@@ -203,32 +239,16 @@ export default function ElementSelector({ selectedSymbol, onSelect, onClose }) {
         </p>
       </div>
 
-      {/* Legend */}
-      <div className={styles.legend}>
-        {Object.entries(GROUP_LABELS).map(([key, label]) => (
-          <span key={key} className={styles.legendItem}>
-            <span className={styles.legendDot} style={{ backgroundColor: GROUP_COLORS[key] }} />
-            {label}
-          </span>
-        ))}
-      </div>
+      <Legend />
 
       {/* Main PSE Grid */}
       <div className={styles.grid}>
         {mainElements.map(el => {
-          // Calculate grid position (approximate PSE layout)
           const col = el.group;
           const row = el.period;
           return (
-            <div
-              key={el.symbol}
-              style={{
-                gridRow: row,
-                gridColumn: col,
-                display: "flex"
-              }}
-            >
-              <ElementCell element={el} selected={el.symbol === selectedSymbol} onClick={onSelect} />
+            <div key={el.symbol} style={{ gridRow: row, gridColumn: col, display: "flex" }}>
+              <ElementCell element={el} selected={el.symbol === selectedSymbol} onClick={handleCellClick} />
             </div>
           );
         })}
@@ -241,7 +261,12 @@ export default function ElementSelector({ selectedSymbol, onSelect, onClose }) {
         </span>
         <div className={styles.fblockRow}>
           {lanthanides.map(el => (
-            <ElementCell key={el.symbol} element={el} selected={el.symbol === selectedSymbol} onClick={onSelect} />
+            <ElementCell
+              key={el.symbol}
+              element={el}
+              selected={el.symbol === selectedSymbol}
+              onClick={handleCellClick}
+            />
           ))}
         </div>
         <span className={styles.fblockLabel}>
@@ -249,12 +274,17 @@ export default function ElementSelector({ selectedSymbol, onSelect, onClose }) {
         </span>
         <div className={styles.fblockRow}>
           {actinides.map(el => (
-            <ElementCell key={el.symbol} element={el} selected={el.symbol === selectedSymbol} onClick={onSelect} />
+            <ElementCell
+              key={el.symbol}
+              element={el}
+              selected={el.symbol === selectedSymbol}
+              onClick={handleCellClick}
+            />
           ))}
         </div>
       </div>
 
-      {/* Selected element info */}
+      {/* Selected element info + confirm */}
       {selectedEl && (
         <div className={styles.infoCard}>
           <div className={styles.infoSymbol} style={{ color: GROUP_COLORS[selectedEl.group_type] }}>
@@ -266,11 +296,15 @@ export default function ElementSelector({ selectedSymbol, onSelect, onClose }) {
               <FormattedMessage
                 id="element-selector.atomic-info"
                 defaultMessage="Ordnungszahl {number}, Gruppe {group}, Periode {period}"
-                values={{ number: selectedEl.number, group: selectedEl.group, period: selectedEl.period }}
+                values={{
+                  number: selectedEl.number,
+                  group: selectedEl.group,
+                  period: selectedEl.period
+                }}
               />
             </p>
           </div>
-          <button className={styles.confirmBtn} onClick={() => onClose(selectedEl.symbol)}>
+          <button className={styles.confirmBtn} onClick={handleConfirm} data-testid="element-confirm-btn">
             <FormattedMessage
               id="element-selector.create-room"
               defaultMessage="Raum mit {name} erstellen"
@@ -281,7 +315,7 @@ export default function ElementSelector({ selectedSymbol, onSelect, onClose }) {
       )}
 
       {/* Close without selection */}
-      <button className={styles.cancelBtn} onClick={() => onClose(null)}>
+      <button className={styles.cancelBtn} onClick={handleCancel} data-testid="element-cancel-btn">
         <FormattedMessage id="element-selector.cancel" defaultMessage="Abbrechen" />
       </button>
     </div>
@@ -289,7 +323,6 @@ export default function ElementSelector({ selectedSymbol, onSelect, onClose }) {
 }
 
 ElementSelector.propTypes = {
-  selectedSymbol: PropTypes.string,
-  onSelect: PropTypes.func.isRequired,
+  onSelect: PropTypes.func,
   onClose: PropTypes.func.isRequired
 };

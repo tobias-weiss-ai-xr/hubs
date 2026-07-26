@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import { Button } from "../input/Button";
@@ -7,7 +7,9 @@ import styles from "./TokenGenerationPanel.scss";
 
 function copyToClipboard(text) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(text).catch(() => {
+      // Fallback: select-less copy ignored silently
+    });
   }
 }
 
@@ -16,10 +18,21 @@ export default function TokenGenerationPanel({ channel, onClose }) {
   const [generating, setGenerating] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [error, setError] = useState(null);
+  const copiedTimerRef = useRef(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      if (copiedTimerRef.current) {
+        clearTimeout(copiedTimerRef.current);
+      }
+    };
+  }, []);
 
   const loadSessions = useCallback(async () => {
     try {
-      // Use the REST API to get sessions for this hub
       const hubId = channel.hubId;
       const resp = await fetch(`/api/v1/hubs/${hubId}/sessions`, {
         headers: channel.store.state.credentials.token
@@ -35,10 +48,18 @@ export default function TokenGenerationPanel({ channel, onClose }) {
     }
   }, [channel]);
 
-  // Load existing sessions/tokens on mount
   useEffect(() => {
     loadSessions();
   }, [loadSessions]);
+
+  const flashCopied = useCallback(index => {
+    setCopiedIndex(index);
+    copiedTimerRef.current = setTimeout(() => {
+      if (mountedRef.current) {
+        setCopiedIndex(null);
+      }
+    }, 3000);
+  }, []);
 
   const generateToken = useCallback(
     async (role = "student") => {
@@ -46,7 +67,7 @@ export default function TokenGenerationPanel({ channel, onClose }) {
       setError(null);
       try {
         const hubId = channel.hubId;
-        const resp = await fetch(`/api/v1/rooms/token`, {
+        const resp = await fetch("/api/v1/rooms/token", {
           method: "POST",
           headers: {
             "content-type": "application/json",
@@ -59,7 +80,6 @@ export default function TokenGenerationPanel({ channel, onClose }) {
 
         if (resp.ok) {
           const data = await resp.json();
-          // Add the new token to the list
           const newToken = {
             id: `token-${Date.now()}`,
             access_token: data.access_token,
@@ -67,10 +87,8 @@ export default function TokenGenerationPanel({ channel, onClose }) {
             created_at: new Date().toISOString()
           };
           setTokens(prev => [newToken, ...prev]);
-          // Auto-copy to clipboard
           copyToClipboard(data.access_token);
-          setCopiedIndex(0);
-          setTimeout(() => setCopiedIndex(null), 3000);
+          flashCopied(0);
         } else {
           const err = await resp.json().catch(() => ({ error: "Failed to generate token" }));
           setError(err.error || "Failed to generate token");
@@ -81,23 +99,29 @@ export default function TokenGenerationPanel({ channel, onClose }) {
         setGenerating(false);
       }
     },
-    [channel]
+    [channel, flashCopied]
   );
 
-  const copyToken = useCallback((token, index) => {
-    copyToClipboard(token);
-    setCopiedIndex(index);
-    setTimeout(() => setCopiedIndex(null), 3000);
-  }, []);
+  const copyToken = useCallback(
+    (token, index) => {
+      copyToClipboard(token);
+      flashCopied(index);
+    },
+    [flashCopied]
+  );
 
   return (
-    <Column>
+    <Column grow>
       <div className={styles.panel}>
         <div className={styles.header}>
           <FormattedMessage id="token-generation.title" defaultMessage="Access Tokens" />
         </div>
 
-        {error && <div className={styles.error}>{error}</div>}
+        {error && (
+          <div className={styles.error} role="alert">
+            {error}
+          </div>
+        )}
 
         <div className={styles.actions}>
           <Button onClick={() => generateToken("student")} disabled={generating}>
@@ -138,7 +162,11 @@ export default function TokenGenerationPanel({ channel, onClose }) {
                     {token.created_at ? new Date(token.created_at).toLocaleString() : ""}
                   </span>
                 </div>
-                <button className={styles.copyBtn} onClick={() => copyToken(token.access_token, i)}>
+                <button
+                  className={styles.copyBtn}
+                  onClick={() => copyToken(token.access_token, i)}
+                  aria-label={`${token.role} token`}
+                >
                   {copiedIndex === i ? (
                     <FormattedMessage id="token-generation.copied" defaultMessage="✓ Copied" />
                   ) : (
@@ -167,6 +195,15 @@ export default function TokenGenerationPanel({ channel, onClose }) {
 }
 
 TokenGenerationPanel.propTypes = {
-  channel: PropTypes.object.isRequired,
+  channel: PropTypes.shape({
+    hubId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    store: PropTypes.shape({
+      state: PropTypes.shape({
+        credentials: PropTypes.shape({
+          token: PropTypes.string
+        })
+      })
+    })
+  }).isRequired,
   onClose: PropTypes.func.isRequired
 };
