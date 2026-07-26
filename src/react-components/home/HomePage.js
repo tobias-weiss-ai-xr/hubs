@@ -3,6 +3,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import classNames from "classnames";
 import configs from "../../utils/configs";
 import { CreateRoomButton } from "./CreateRoomButton";
+import { ChemistryCreateRoomButton } from "./ChemistryCreateRoomButton";
 import { PWAButton } from "./PWAButton";
 import { useFavoriteRooms } from "./useFavoriteRooms";
 import { usePublicRooms } from "./usePublicRooms";
@@ -78,6 +79,7 @@ export function HomePage() {
           </div>
           <div className={styles.appInfo}>
             <div className={styles.appDescription}>{configs.translation("app-description")}</div>
+            {canCreateRooms && <ChemistryCreateRoomButton />}
             {canCreateRooms && <CreateRoomButton />}
             <PWAButton />
           </div>

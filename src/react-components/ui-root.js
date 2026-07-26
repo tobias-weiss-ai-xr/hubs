@@ -105,8 +105,10 @@ import ChatToolbarButton from "./room/components/ChatToolbarButton/ChatToolbarBu
 import SeePlansCTA from "./room/components/SeePlansCTA/SeePlansCTA";
 import ProgressPanel from "./room/ProgressPanel";
 import AnalyticsDashboard from "./room/AnalyticsDashboard";
+import TokenGenerationPanel from "./room/TokenGenerationPanel";
 import { ReactComponent as DocumentIcon } from "./icons/Document.svg";
 import { ReactComponent as InfoIcon } from "./icons/Info.svg";
+import { ReactComponent as CodeBranchIcon } from "./icons/CodeBranch.svg";
 
 const avatarEditorDebug = qsTruthy("avatarEditorDebug");
 
@@ -1264,6 +1266,12 @@ class UIRoot extends Component {
             icon: InfoIcon,
             onClick: () => this.setSidebar("analytics")
           },
+          entered && {
+            id: "tokens",
+            label: "Access Tokens",
+            icon: CodeBranchIcon,
+            onClick: () => this.setSidebar("tokens")
+          },
           (this.props.breakpoint === "sm" || this.props.breakpoint === "md") &&
             entered && {
               id: "leave-room",
@@ -1612,6 +1620,9 @@ class UIRoot extends Component {
                       )}
                       {this.state.sidebarId === "analytics" && (
                         <AnalyticsDashboard channel={this.props.hubChannel} onClose={() => this.setSidebar(null)} />
+                      )}
+                      {this.state.sidebarId === "tokens" && (
+                        <TokenGenerationPanel channel={this.props.hubChannel} onClose={() => this.setSidebar(null)} />
                       )}
                     </>
                   ) : undefined
