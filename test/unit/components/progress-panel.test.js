@@ -105,6 +105,66 @@ test.serial("StudentView renders progress entries", async t => {
   t.truthy(byText("50%"));
 });
 
+test.serial("StudentView renders multi-minute time format", async t => {
+  const entries = [
+    {
+      element_slug: "long-experiment",
+      element_type: "experiment",
+      status: "completed",
+      score: 80,
+      max_score: 100,
+      time_spent_ms: 3723000
+    }
+  ];
+
+  const channel = createMockChannel({
+    getMyProgress: () => Promise.resolve({ entries })
+  });
+
+  renderWithProviders(
+    React.createElement(ProgressPanel, {
+      channel,
+      isTeacher: false,
+      onClose: () => {}
+    })
+  );
+
+  await waitForText("long-experiment");
+  // 3723000ms = 62m 3s
+  t.truthy(byText("62m 3s"));
+});
+
+test.serial("StudentView renders entry with zero time_spent_ms", async t => {
+  const entries = [
+    {
+      element_slug: "instant-visit",
+      element_type: "scene",
+      status: "visited",
+      score: null,
+      max_score: null,
+      time_spent_ms: 0
+    }
+  ];
+
+  const channel = createMockChannel({
+    getMyProgress: () => Promise.resolve({ entries })
+  });
+
+  renderWithProviders(
+    React.createElement(ProgressPanel, {
+      channel,
+      isTeacher: false,
+      onClose: () => {}
+    })
+  );
+
+  await waitForText("instant-visit");
+  // 0ms → formatTime returns "" → no time element rendered
+  t.falsy(byTextMaybe("0s"));
+  // But the element name and status should still show
+  t.truthy(byText("Visited"));
+});
+
 test.serial("StudentView subscribes to progress updates", async t => {
   let registeredHandler = null;
   const channel = createMockChannel({
@@ -377,4 +437,100 @@ test.serial("onClose fires when Close button clicked", async t => {
   await waitForText("Close");
   await act(() => byText("Close").click());
   t.truthy(closed);
+});
+
+// ── Accessibility ───────────────────────────────────────────────────────────
+
+test.serial("renders buttons as accessible button elements", async t => {
+  const channel = createMockChannel({
+    getMyProgress: () => Promise.resolve({ entries: [] })
+  });
+
+  renderWithProviders(
+    React.createElement(ProgressPanel, {
+      channel,
+      isTeacher: false,
+      onClose: () => {}
+    })
+  );
+
+  await waitForText("Close");
+  const buttons = screen.getAllByRole("button");
+  t.truthy(buttons.length >= 1, "at least one button rendered");
+});
+
+test.serial("Close button has accessible text content", async t => {
+  const channel = createMockChannel({
+    getMyProgress: () => Promise.resolve({ entries: [] })
+  });
+
+  renderWithProviders(
+    React.createElement(ProgressPanel, {
+      channel,
+      isTeacher: false,
+      onClose: () => {}
+    })
+  );
+
+  await waitForText("Close");
+  const closeBtn = screen.getByRole("button", { name: /close/i });
+  t.truthy(closeBtn);
+});
+
+test.serial("TeacherView Refresh button is accessible", async t => {
+  const channel = createMockChannel({
+    getRoomProgress: () =>
+      Promise.resolve({
+        students: [
+          {
+            identity_name: "Alice",
+            account_id: "a1",
+            entries: [{ element_slug: "x", element_type: "element", status: "completed" }]
+          }
+        ]
+      })
+  });
+
+  renderWithProviders(
+    React.createElement(ProgressPanel, {
+      channel,
+      isTeacher: true,
+      onClose: () => {}
+    })
+  );
+
+  await waitForText("Refresh");
+  const refreshBtn = screen.getByRole("button", { name: /refresh/i });
+  t.truthy(refreshBtn);
+});
+
+test.serial("student names are visible text content", async t => {
+  const entries = [
+    {
+      element_slug: "nacl",
+      element_type: "element",
+      status: "completed",
+      score: 100,
+      max_score: 100,
+      time_spent_ms: 5000
+    }
+  ];
+
+  const channel = createMockChannel({
+    getMyProgress: () => Promise.resolve({ entries })
+  });
+
+  renderWithProviders(
+    React.createElement(ProgressPanel, {
+      channel,
+      isTeacher: false,
+      onClose: () => {}
+    })
+  );
+
+  await waitForText("nacl");
+  const elementName = screen.getByText("nacl", { exact: true });
+  t.truthy(elementName);
+  // Element name is a span — should be in the accessibility tree
+  t.is(elementName.tagName, "SPAN");
 });

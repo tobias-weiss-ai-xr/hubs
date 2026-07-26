@@ -148,6 +148,37 @@ test.serial("renders student progress list", async t => {
   t.truthy(byText("Q: 85%"));
 });
 
+test.serial("formats large time values correctly", async t => {
+  const data = {
+    room: null,
+    students: [
+      {
+        identity_name: "LongTime",
+        completed: 5,
+        total_elements: 10,
+        total_time_spent_ms: 3723000,
+        quiz_avg_score: null
+      }
+    ],
+    quiz_summary: null
+  };
+
+  const channel = createMockChannel({
+    fetchAnalytics: () => Promise.resolve(data)
+  });
+
+  renderWithProviders(
+    React.createElement(AnalyticsDashboard, {
+      channel,
+      onClose: () => {}
+    })
+  );
+
+  await waitForText("LongTime");
+  // 3723000ms = 3723s = 62m 3s
+  t.truthy(byText("62m 3s"));
+});
+
 test.serial("shows empty state when no students", async t => {
   const data = { room: null, students: [], quiz_summary: null };
   const channel = createMockChannel({
@@ -276,6 +307,41 @@ test.serial("Refresh button re-fetches data", async t => {
   t.is(callCount, 2, "refresh triggers re-fetch");
 });
 
+test.serial("error state can be recovered via Refresh", async t => {
+  // First call fails, second call succeeds
+  let callCount = 0;
+  const channel = createMockChannel({
+    fetchAnalytics: () => {
+      callCount++;
+      if (callCount === 1) return Promise.reject(new Error("API down"));
+      return Promise.resolve({
+        room: { name: "Recovered Room", current_occupants: 3 },
+        students: [{ identity_name: "Alice", completed: 2, total_elements: 2 }],
+        quiz_summary: null
+      });
+    }
+  });
+
+  renderWithProviders(
+    React.createElement(AnalyticsDashboard, {
+      channel,
+      onClose: () => {}
+    })
+  );
+
+  // First render: error state
+  await waitForText("Failed to load analytics");
+  t.truthy(byText("Refresh"));
+
+  // Click Refresh → second call succeeds
+  await act(() => byText("Refresh").click());
+  await flush();
+
+  // Should now show recovered data
+  t.truthy(byText("Recovered Room"));
+  t.truthy(byText("Alice"));
+});
+
 test.serial("re-fetches on progress update event", async t => {
   let registeredHandler = null;
   let loadCallCount = 0;
@@ -353,4 +419,80 @@ test.serial("does not crash with minimal data (missing optional fields)", async 
   t.truthy(screen.getAllByText("Test", { exact: true }).length >= 1);
   t.truthy(screen.getByText("1", { exact: true })); // total_quizzes, exact match
   t.truthy(screen.getAllByText("—", { exact: true }).length >= 1); // dashes for missing values
+});
+
+// ── Accessibility ───────────────────────────────────────────────────────────
+
+test.serial("renders buttons as accessible button elements", async t => {
+  const channel = createMockChannel({
+    fetchAnalytics: () => Promise.resolve({ room: null, students: [], quiz_summary: null })
+  });
+
+  renderWithProviders(
+    React.createElement(AnalyticsDashboard, {
+      channel,
+      onClose: () => {}
+    })
+  );
+
+  await waitForText("Refresh");
+  const buttons = screen.getAllByRole("button");
+  t.truthy(buttons.length >= 2, "at least two buttons (Refresh + Close)");
+});
+
+test.serial("Refresh button is accessible by role", async t => {
+  const channel = createMockChannel({
+    fetchAnalytics: () => Promise.resolve({ room: null, students: [], quiz_summary: null })
+  });
+
+  renderWithProviders(
+    React.createElement(AnalyticsDashboard, {
+      channel,
+      onClose: () => {}
+    })
+  );
+
+  await waitForText("Refresh");
+  const refreshBtn = screen.getByRole("button", { name: /refresh/i });
+  t.truthy(refreshBtn);
+});
+
+test.serial("Close button is accessible by role", async t => {
+  const channel = createMockChannel({
+    fetchAnalytics: () => Promise.resolve({ room: null, students: [], quiz_summary: null })
+  });
+
+  renderWithProviders(
+    React.createElement(AnalyticsDashboard, {
+      channel,
+      onClose: () => {}
+    })
+  );
+
+  await waitForText("Close");
+  const closeBtn = screen.getByRole("button", { name: /close/i });
+  t.truthy(closeBtn);
+});
+
+test.serial("room name heading is rendered", async t => {
+  const data = {
+    room: { name: "Physics Lab", current_occupants: 2 },
+    students: [],
+    quiz_summary: null
+  };
+
+  const channel = createMockChannel({
+    fetchAnalytics: () => Promise.resolve(data)
+  });
+
+  renderWithProviders(
+    React.createElement(AnalyticsDashboard, {
+      channel,
+      onClose: () => {}
+    })
+  );
+
+  await waitForText("Physics Lab");
+  const heading = screen.getByText("Physics Lab", { exact: true });
+  t.truthy(heading);
 });
