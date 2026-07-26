@@ -8,7 +8,6 @@
  */
 const { JSDOM } = require("jsdom");
 const Module = require("module");
-const path = require("path");
 
 // ── 1. jsdom environment ──────────────────────────────────────────────────
 const dom = new JSDOM("<!doctype html><html><body></body></html>", {
@@ -36,8 +35,8 @@ for (const key of Object.getOwnPropertyNames(dom.window)) {
 
 // requestAnimationFrame polyfill
 if (typeof global.requestAnimationFrame !== "function") {
-  global.requestAnimationFrame = (cb) => setTimeout(cb, 0);
-  global.cancelAnimationFrame = (id) => clearTimeout(id);
+  global.requestAnimationFrame = cb => setTimeout(cb, 0);
+  global.cancelAnimationFrame = id => clearTimeout(id);
 }
 
 // ── 2. CSS Modules mock ──────────────────────────────────────────────────
@@ -46,9 +45,7 @@ if (typeof global.requestAnimationFrame !== "function") {
 const cssExtensions = [".scss", ".css", ".module.scss", ".module.css"];
 
 for (const ext of cssExtensions) {
-  const originalHandler = Module._extensions[ext];
-
-  Module._extensions[ext] = (mod, filename) => {
+  Module._extensions[ext] = function (mod) {
     const proxy = new Proxy(
       {},
       {

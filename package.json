@@ -63,7 +63,8 @@
   },
   "ava": {
     "files": [
-      "./test/unit/**"
+      "./test/unit/**/*.test.js",
+      "./test/unit/*.test.js"
     ],
     "require": [
       "./test/unit/helpers/setup-browser-env.js",
@@ -185,7 +186,7 @@
     "acorn": "^8.8.0",
     "ava": "^4.3.1",
     "babel-loader": "^10.0.0",
-    "babel-plugin-formatjs": "^10.5.39",
+    "babel-plugin-formatjs": "^10.5.41",
     "copy-webpack-plugin": "^13.0.1",
     "cors": "^2.8.5",
     "css-loader": "^6.7.1",

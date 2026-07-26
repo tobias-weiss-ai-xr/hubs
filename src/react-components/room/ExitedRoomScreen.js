@@ -76,7 +76,6 @@ export function ExitedRoomScreen({ reason, showTerms, termsUrl, showSourceLink }
               id="exited-room-screen.closed-room-tos"
               defaultMessage="A room may be closed by the room owner, or if we receive reports that it violates our <toslink>Terms of Use</toslink>."
               values={{
-                // eslint-disable-next-line react/display-name
                 toslink: chunks => (
                   <a target="_blank" rel="noreferrer noopener" href={termsUrl}>
                     {chunks}
@@ -99,7 +98,6 @@ export function ExitedRoomScreen({ reason, showTerms, termsUrl, showSourceLink }
               id="exited-room-screen.source-link"
               defaultMessage="If you'd like to run your own server, Hubs's source code is available on <a>GitHub</a>."
               values={{
-                // eslint-disable-next-line react/display-name
                 a: chunks => <a href="/">{chunks}</a>
               }}
             />
@@ -127,7 +125,6 @@ export function ExitedRoomScreen({ reason, showTerms, termsUrl, showSourceLink }
               id="exited-room-screen.connect-tcp"
               defaultMessage="You can try <a>connecting via TCP</a>, which may work better on some networks."
               values={{
-                // eslint-disable-next-line react/display-name
                 a: chunks => <a href={tcpUrl.toString()}>{chunks}</a>
               }}
             />
@@ -139,7 +136,6 @@ export function ExitedRoomScreen({ reason, showTerms, termsUrl, showSourceLink }
               id="exited-room-screen.create-room"
               defaultMessage="You can also <a>create a new room</a>."
               values={{
-                // eslint-disable-next-line react/display-name
                 a: chunks => <a href="/">{chunks}</a>
               }}
             />

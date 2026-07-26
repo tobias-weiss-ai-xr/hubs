@@ -4,6 +4,8 @@ import { Button } from "../input/Button";
 import { Column } from "../layout/Column";
 import styles from "./AnalyticsDashboard.scss";
 
+/* eslint-disable @calm/react-intl/missing-formatted-message */
+
 function formatTime(ms) {
   if (!ms) return "";
   const secs = Math.floor(ms / 1000);
@@ -39,6 +41,16 @@ function RoomStatsCard({ room }) {
   );
 }
 
+RoomStatsCard.propTypes = {
+  room: PropTypes.shape({
+    name: PropTypes.string,
+    current_occupants: PropTypes.number,
+    members_in_room: PropTypes.number,
+    members_in_lobby: PropTypes.number,
+    max_ccu_24h: PropTypes.number
+  })
+};
+
 function StudentProgressList({ students }) {
   if (!students || students.length === 0) {
     return <div className={styles.noData}>No student activity yet</div>;
@@ -61,9 +73,7 @@ function StudentProgressList({ students }) {
               </div>
               <span className={styles.studentStat}>{pct}%</span>
               <span className={styles.studentStat}>{formatTime(s.total_time_spent_ms)}</span>
-              {s.quiz_avg_score != null && (
-                <span className={styles.studentStat}>Q: {s.quiz_avg_score}%</span>
-              )}
+              {s.quiz_avg_score != null && <span className={styles.studentStat}>Q: {s.quiz_avg_score}%</span>}
             </div>
           );
         })}
@@ -71,6 +81,19 @@ function StudentProgressList({ students }) {
     </div>
   );
 }
+
+StudentProgressList.propTypes = {
+  students: PropTypes.arrayOf(
+    PropTypes.shape({
+      account_id: PropTypes.string,
+      identity_name: PropTypes.string,
+      completed: PropTypes.number,
+      total_elements: PropTypes.number,
+      total_time_spent_ms: PropTypes.number,
+      quiz_avg_score: PropTypes.number
+    })
+  )
+};
 
 function QuizSummaryCard({ quizSummary }) {
   if (!quizSummary || quizSummary.total_quizzes === 0) {
@@ -104,6 +127,14 @@ function QuizSummaryCard({ quizSummary }) {
     </div>
   );
 }
+
+QuizSummaryCard.propTypes = {
+  quizSummary: PropTypes.shape({
+    total_quizzes: PropTypes.number,
+    total_participants: PropTypes.number,
+    average_score: PropTypes.number
+  })
+};
 
 export default function AnalyticsDashboard({ channel, onClose }) {
   const [data, setData] = useState(null);

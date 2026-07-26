@@ -2,7 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Modal } from "../modal/Modal";
 import { CloseButton } from "../input/CloseButton";
-import { Button } from "../input/Button";
 import { Column } from "../layout/Column";
 import { FormattedMessage } from "react-intl";
 

@@ -1,3 +1,5 @@
+/* eslint-disable @calm/react-intl/missing-formatted-message */
+
 import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Button } from "../input/Button";
@@ -27,12 +29,24 @@ function StudentProgressEntry({ entry }) {
         {STATUS_LABEL[entry.status] || entry.status}
       </span>
       {entry.max_score != null && (
-        <span className={styles.score}>{entry.score ?? 0}/{entry.max_score}</span>
+        <span className={styles.score}>
+          {entry.score ?? 0}/{entry.max_score}
+        </span>
       )}
       <span className={styles.time}>{formatTime(entry.time_spent_ms)}</span>
     </div>
   );
 }
+
+StudentProgressEntry.propTypes = {
+  entry: PropTypes.shape({
+    element_slug: PropTypes.string,
+    status: PropTypes.string,
+    score: PropTypes.number,
+    max_score: PropTypes.number,
+    time_spent_ms: PropTypes.number
+  }).isRequired
+};
 
 function StudentCard({ student, expanded, onToggle }) {
   const entries = student.entries || [];
@@ -60,6 +74,17 @@ function StudentCard({ student, expanded, onToggle }) {
   );
 }
 
+StudentCard.propTypes = {
+  student: PropTypes.shape({
+    identity_name: PropTypes.string,
+    account_id: PropTypes.string,
+    session_id: PropTypes.string,
+    entries: PropTypes.array
+  }).isRequired,
+  expanded: PropTypes.bool,
+  onToggle: PropTypes.func.isRequired
+};
+
 function TeacherView({ channel }) {
   const [students, setStudents] = useState([]);
   const [expanded, setExpanded] = useState({});
@@ -68,7 +93,9 @@ function TeacherView({ channel }) {
     try {
       const res = await channel.getRoomProgress();
       setStudents(res.students || []);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, [channel]);
 
   useEffect(() => {
@@ -102,13 +129,23 @@ function TeacherView({ channel }) {
   );
 }
 
+TeacherView.propTypes = {
+  channel: PropTypes.object.isRequired
+};
+
 function StudentView({ channel }) {
   const [entries, setEntries] = useState([]);
 
   useEffect(() => {
-    channel.getMyProgress().then(res => setEntries(res.entries || [])).catch(() => {});
+    channel
+      .getMyProgress()
+      .then(res => setEntries(res.entries || []))
+      .catch(() => {});
     channel.onProgressUpdated(() => {
-      channel.getMyProgress().then(res => setEntries(res.entries || [])).catch(() => {});
+      channel
+        .getMyProgress()
+        .then(res => setEntries(res.entries || []))
+        .catch(() => {});
     });
   }, [channel]);
 
@@ -117,7 +154,9 @@ function StudentView({ channel }) {
 
   return (
     <div className={styles.panel}>
-      <div className={styles.header}>My Progress — {completed}/{entries.length} ({pct}%)</div>
+      <div className={styles.header}>
+        My Progress — {completed}/{entries.length} ({pct}%)
+      </div>
       <div className={styles.elementList}>
         {entries.map(e => (
           <StudentProgressEntry key={e.element_slug} entry={e} />
@@ -127,6 +166,10 @@ function StudentView({ channel }) {
     </div>
   );
 }
+
+StudentView.propTypes = {
+  channel: PropTypes.object.isRequired
+};
 
 export default function ProgressPanel({ channel, isTeacher, onClose }) {
   return (

@@ -417,11 +417,7 @@ class MediaBrowserContainer extends Component {
           )}
           {configs.feature("enable_spoke") && configs.feature("show_issue_report_link") && " | "}
           {configs.feature("show_issue_report_link") && (
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href={configs.link("issue_report", "/help")}
-            >
+            <a target="_blank" rel="noopener noreferrer" href={configs.link("issue_report", "/help")}>
               <FormattedMessage id="media-browser.report-issue" defaultMessage="Report Issue" />
             </a>
           )}

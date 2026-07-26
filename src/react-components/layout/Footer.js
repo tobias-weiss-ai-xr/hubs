@@ -17,10 +17,10 @@ export function Footer({
   showCompanyLogo,
   companyLogoUrl,
   showDiscordBotLink,
-  appName,
-  isHmc
+  appName
 }) {
-  const tagline = configs.translation("app-description") || "Chemie lernen in 3D – interaktive VR-Räume für den Chemieunterricht";
+  const tagline =
+    configs.translation("app-description") || "Chemie lernen in 3D – interaktive VR-Räume für den Chemieunterricht";
 
   return (
     <footer>
@@ -39,7 +39,6 @@ export function Footer({
                 defaultMessage="Powered by <a>{appName}</a>"
                 values={{
                   appName,
-                  // eslint-disable-next-line react/display-name
                   a: chunks => (
                     <a className={styles.link} href={configs.link("home", "/")}>
                       {chunks}

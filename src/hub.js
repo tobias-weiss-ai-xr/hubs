@@ -1120,7 +1120,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   let roomAccessPermsToken = null;
   if (roomAccessRequired || roomAccessToken) {
     try {
-      const token = roomAccessToken || (await promptForRoomAccessToken(APP.store.state.roomData && APP.store.state.roomData.name || `Room ${hubId}`));
+      const token =
+        roomAccessToken ||
+        (await promptForRoomAccessToken(
+          (APP.store.state.roomData && APP.store.state.roomData.name) || `Room ${hubId}`
+        ));
       const retUrl = getReticulumFetchUrl(`/api/v1/rooms/${hubId}/join`);
       const res = await fetch(retUrl, {
         method: "POST",
@@ -1251,7 +1255,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (oauthFlowPermsToken) {
     Cookies.remove(OAUTH_FLOW_PERMS_TOKEN_KEY);
   }
-  const hubPhxChannel = socket.channel(`hub:${hubId}`, APP.hubChannelParamsForPermsToken(oauthFlowPermsToken || roomAccessPermsToken));
+  const hubPhxChannel = socket.channel(
+    `hub:${hubId}`,
+    APP.hubChannelParamsForPermsToken(oauthFlowPermsToken || roomAccessPermsToken)
+  );
   hubChannel.channel = hubPhxChannel;
   hubChannel.presence = new Presence(hubPhxChannel);
   const { rawOnJoin, rawOnLeave } = denoisePresence(presenceEventsForHub(events));

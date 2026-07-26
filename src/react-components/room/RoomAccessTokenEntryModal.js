@@ -44,10 +44,7 @@ export function RoomAccessTokenEntryModal({ className, roomName, onSubmit, onCan
           <InputField
             htmlFor="room-access-token-input"
             label={
-              <FormattedMessage
-                id="room-access-token-entry-modal.token-label"
-                defaultMessage="Room Access Token"
-              />
+              <FormattedMessage id="room-access-token-entry-modal.token-label" defaultMessage="Room Access Token" />
             }
             error={error}
             className={styles.tokenField}

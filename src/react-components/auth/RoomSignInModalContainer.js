@@ -24,12 +24,7 @@ export function RoomSignInModalContainer({ onClose, step, onSubmitEmail, message
           message={message}
         />
       )}
-      {step === SignInStep.waitForVerification && (
-        <WaitForVerification
-          onCancel={onClose}
-          email={cachedEmail}
-        />
-      )}
+      {step === SignInStep.waitForVerification && <WaitForVerification onCancel={onClose} email={cachedEmail} />}
       {step === SignInStep.complete && <SignInComplete message={message} onContinue={onContinue} />}
     </SignInModal>
   );

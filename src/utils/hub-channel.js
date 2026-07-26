@@ -471,26 +471,18 @@ export default class HubChannel extends EventTarget {
 
   getMyProgress = () => {
     return new Promise((resolve, reject) => {
-      this.channel
-        .push("get_my_progress", {})
-        .receive("ok", resolve)
-        .receive("error", reject);
+      this.channel.push("get_my_progress", {}).receive("ok", resolve).receive("error", reject);
     });
   };
 
   getRoomProgress = () => {
     return new Promise((resolve, reject) => {
-      this.channel
-        .push("get_room_progress", {})
-        .receive("ok", resolve)
-        .receive("error", reject);
+      this.channel.push("get_room_progress", {}).receive("ok", resolve).receive("error", reject);
     });
   };
 
   fetchAnalytics = () => {
-    return fetch(`/api/v1/hubs/${this.hubId}/analytics`, { credentials: "same-origin" }).then(res =>
-      res.json()
-    );
+    return fetch(`/api/v1/hubs/${this.hubId}/analytics`, { credentials: "same-origin" }).then(res => res.json());
   };
 
   onProgressUpdated = handler => {

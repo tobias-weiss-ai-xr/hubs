@@ -95,7 +95,7 @@ export function HomePage() {
           </div>
         </div>
       </Container>
-          {configs.feature("show_feature_panels") && (
+      {configs.feature("show_feature_panels") && (
         <Container className={classNames(styles.features, styles.colLg, styles.centerLg)}>
           <Column padding gap="xl" className={styles.card}>
             <img src={configs.image("landing_rooms_thumb")} />

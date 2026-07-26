@@ -1,9 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
 
-const ELEMENT_NAV_EVENT = "navigate_element";
-const QUIZ_STARTED_EVENT = "quiz_started";
-const QUIZ_ENDED_EVENT = "quiz_ended";
-
 export default function useProgressTracker(channel, elementSlug, elementType) {
   const startTime = useRef(null);
   const currentSlug = useRef(null);

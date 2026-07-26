@@ -8,6 +8,8 @@
     "node_modules/**",
     "test/**",
     "e2e/**",
-    "coverage/**"
+    "coverage/**",
+    "src/react-components/input/**",
+    "src/react-components/layout/**"
   ]
 }

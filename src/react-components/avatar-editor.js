@@ -586,11 +586,7 @@ class AvatarEditor extends Component {
                       defaultMessage="Allow <a>Promotion</a>"
                       values={{
                         a: chunks => (
-                          <a
-                            href={configs.link("promotion", "/promotion")}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
+                          <a href={configs.link("promotion", "/promotion")} target="_blank" rel="noopener noreferrer">
                             {chunks}
                           </a>
                         )
@@ -610,11 +606,7 @@ class AvatarEditor extends Component {
                       defaultMessage="Allow <a>Remixing</a> <license>(under <licenselink>CC-BY 3.0</licenselink>)</license>"
                       values={{
                         a: chunks => (
-                          <a
-                            href={configs.link("remixing", "/remixing")}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
+                          <a href={configs.link("remixing", "/remixing")} target="_blank" rel="noopener noreferrer">
                             {chunks}
                           </a>
                         ),

@@ -1611,10 +1611,7 @@ class UIRoot extends Component {
                         />
                       )}
                       {this.state.sidebarId === "analytics" && (
-                        <AnalyticsDashboard
-                          channel={this.props.hubChannel}
-                          onClose={() => this.setSidebar(null)}
-                        />
+                        <AnalyticsDashboard channel={this.props.hubChannel} onClose={() => this.setSidebar(null)} />
                       )}
                     </>
                   ) : undefined

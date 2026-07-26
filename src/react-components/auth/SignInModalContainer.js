@@ -76,10 +76,7 @@ export function SignInModalContainer() {
           showPrivacy={configs.feature("show_privacy")}
         />
       ) : (
-        <WaitForVerification
-          onCancel={cancel}
-          email={email}
-        />
+        <WaitForVerification onCancel={cancel} email={email} />
       )}
     </SignInModal>
   );
