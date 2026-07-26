@@ -191,7 +191,7 @@ export function fetchReticulumAuthenticatedWithToken(token, url, method = "GET",
     const result = await r.text();
     try {
       return JSON.parse(result);
-    } catch (e) {
+    } catch {
       // Some reticulum responses, particularly DELETE requests, don't return json.
       return result;
     }
@@ -201,7 +201,7 @@ export function fetchReticulumAuthenticated(url, method = "GET", payload) {
   return fetchReticulumAuthenticatedWithToken(store.state.credentials.token, url, method, payload);
 }
 
-export async function createAndRedirectToNewHub(name, sceneId, replace) {
+export async function createAndRedirectToNewHub(name, sceneId, replace, qs) {
   const createUrl = getReticulumFetchUrl("/api/v1/hubs");
   const payload = { hub: { name: name || generateHubName() } };
 
@@ -251,6 +251,14 @@ export async function createAndRedirectToNewHub(name, sceneId, replace) {
 
   if (isLocalClient()) {
     url = `/hub.html?hub_id=${hub.hub_id}`;
+  }
+
+  if (qs) {
+    if (isLocalClient()) {
+      url = `${url}&${qs.toString()}`;
+    } else {
+      url = `${url}?${qs.toString()}`;
+    }
   }
 
   if (replace) {
@@ -426,4 +434,8 @@ export const tryGetMatchingMeta = async ({ ret_pool, ret_version }, shouldAbando
     attempt = attempt + 1;
   }
   return didMatchMeta;
+};
+
+window.$P = {
+  getReticulumFetchUrl
 };

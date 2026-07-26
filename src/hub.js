@@ -10,7 +10,6 @@ import configs from "./utils/configs";
 import "./utils/theme";
 
 import "core-js/stable";
-import "regenerator-runtime/runtime";
 
 console.log(
   `App version: ${
@@ -189,16 +188,16 @@ import PinningHelper from "./utils/pinning-helper";
 import { sleep } from "./utils/async-utils";
 import { platformUnsupported } from "./support";
 import { renderAsEntity } from "./utils/jsx-entity";
-import { VideoMenuPrefab } from "./prefabs/video-menu";
+import { VideoMenuPrefab, loadVideoMenuButtonIcons } from "./prefabs/video-menu";
 import { loadObjectMenuButtonIcons, ObjectMenuPrefab } from "./prefabs/object-menu";
+import { loadMirrorMenuButtonIcons, MirrorMenuPrefab } from "./prefabs/mirror-menu";
+import { loadPDFMenuButtonIcons } from "./prefabs/pdf-menu";
 import { LinkHoverMenuPrefab } from "./prefabs/link-hover-menu";
 import { PDFMenuPrefab } from "./prefabs/pdf-menu";
 import { loadWaypointPreviewModel, WaypointPreview } from "./prefabs/waypoint-preview";
 import { preload } from "./utils/preload";
 
 window.APP = new App();
-renderAsEntity(APP.world, VideoMenuPrefab());
-renderAsEntity(APP.world, VideoMenuPrefab());
 function addToScene(entityDef, visible) {
   return getScene().then(scene => {
     const eid = renderAsEntity(APP.world, entityDef);
@@ -207,10 +206,17 @@ function addToScene(entityDef, visible) {
     obj.visible = !!visible;
   });
 }
-preload(addToScene(PDFMenuPrefab(), false));
+preload(loadPDFMenuButtonIcons().then(() => addToScene(PDFMenuPrefab(), false)));
 preload(loadObjectMenuButtonIcons().then(() => addToScene(ObjectMenuPrefab(), false)));
+preload(loadMirrorMenuButtonIcons().then(() => addToScene(MirrorMenuPrefab(), false)));
 preload(addToScene(LinkHoverMenuPrefab(), false));
 preload(loadWaypointPreviewModel().then(() => addToScene(WaypointPreview(), false)));
+preload(
+  loadVideoMenuButtonIcons().then(() => {
+    addToScene(VideoMenuPrefab(), false);
+    addToScene(VideoMenuPrefab(), false);
+  })
+);
 
 const store = window.APP.store;
 store.update({ preferences: { shouldPromptForRefresh: false } }); // Clear flag that prompts for refresh from preference screen
@@ -220,7 +226,7 @@ const NOISY_OCCUPANT_COUNT = 30; // Above this # of occupants, we stop posting j
 
 const qs = new URLSearchParams(location.search);
 const isMobile = AFRAME.utils.device.isMobile();
-const isMobileVR = AFRAME.utils.device.isMobileVR();
+const isThisMobileVR = AFRAME.utils.device.isMobileVR();
 const isEmbed = window.self !== window.top;
 if (isEmbed && !qs.get("embed_token")) {
   // Should be covered by X-Frame-Options, but just in case.
@@ -440,10 +446,15 @@ export async function getSceneUrlForHub(hub) {
     sceneUrl = document.querySelector("a-scene").is("entered") ? sceneUrl : loadingEnvironment;
   } else if (isLegacyBundle) {
     // Deprecated
-    const res = await fetch(sceneUrl);
-    const data = await res.json();
-    const baseURL = new URL(THREE.LoaderUtils.extractUrlBase(sceneUrl), window.location.href);
-    sceneUrl = new URL(data.assets[0].src, baseURL).href;
+    try {
+      const res = await fetch(sceneUrl);
+      const data = await res.json();
+      const baseURL = new URL(THREE.LoaderUtils.extractUrlBase(sceneUrl), window.location.href);
+      sceneUrl = new URL(data.assets[0].src, baseURL).href;
+    } catch (e) {
+      sceneUrl = loadingEnvironment;
+      console.error("Error fetching the scene: ", e);
+    }
   } else {
     sceneUrl = proxiedUrlFor(sceneUrl);
   }
@@ -565,8 +576,8 @@ export async function updateEnvironmentForHub(hub, entryManager) {
   }
 }
 
-export async function updateUIForHub(hub, hubChannel) {
-  remountUI({ hub, entryDisallowed: !hubChannel.canEnterRoom(hub) });
+export async function updateUIForHub(hub, hubChannel, showBitECSBasedClientRefreshPrompt = false) {
+  remountUI({ hub, entryDisallowed: !hubChannel.canEnterRoom(hub), showBitECSBasedClientRefreshPrompt });
 }
 
 function onConnectionError(entryManager, connectError) {
@@ -777,6 +788,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true });
     } catch (e) {
+      console.warn("standard API for microphone didn't work, falling back to another approach ", e);
       remountUI({ showSafariMicDialog: true });
       return;
     }
@@ -912,7 +924,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // If VR headset is activated, refreshing page will fire vrdisplayactivate
     // which puts A-Frame in VR mode, so exit VR mode whenever it is attempted
     // to be entered and we haven't entered the room yet.
-    if (scene.is("vr-mode") && !scene.is("vr-entered") && !isMobileVR) {
+    if (scene.is("vr-mode") && !scene.is("vr-entered") && !isThisMobileVR) {
       console.log("Pre-emptively exiting VR mode.");
       scene.exitVR();
       return true;
@@ -925,7 +937,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   scene.addEventListener("enter-vr", () => {
     if (handleEarlyVRMode()) return true;
 
-    if (isMobileVR) {
+    if (isThisMobileVR) {
       // Optimization, stop drawing UI if not visible
       remountUI({ hide: true });
     }
@@ -934,7 +946,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     availableVREntryTypesPromise.then(availableVREntryTypes => {
       // Don't stretch canvas on cardboard, since that's drawing the actual VR view :)
-      if ((!isMobile && !isMobileVR) || availableVREntryTypes.cardboard !== VR_DEVICE_AVAILABILITY.yes) {
+      if ((!isMobile && !isThisMobileVR) || availableVREntryTypes.cardboard !== VR_DEVICE_AVAILABILITY.yes) {
         document.body.classList.add("vr-mode-stretch");
       }
     });
@@ -1043,7 +1055,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   availableVREntryTypesPromise.then(async availableVREntryTypes => {
-    if (isMobileVR) {
+    if (isThisMobileVR) {
       remountUI({
         availableVREntryTypes,
         forcedVREntryType: qsVREntryType || "vr",
@@ -1162,7 +1174,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       pushSubscriptionEndpoint,
       permsToken,
       isMobile,
-      isMobileVR,
+      isMobileVR: isThisMobileVR,
       isEmbed,
       hubInviteId: qs.get("hub_invite_id"),
       authToken: store.state.credentials && store.state.credentials.token
@@ -1433,8 +1445,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     const userInfo = hubChannel.presence.state[session_id];
     const displayName = (userInfo && userInfo.metas[0].profile.displayName) || "API";
 
+    let showBitECSBasedClientRefreshPrompt = false;
+
+    if (!!hub.user_data?.hubs_use_bitecs_based_client !== !!window.APP.hub.user_data?.hubs_use_bitecs_based_client) {
+      showBitECSBasedClientRefreshPrompt = true;
+      setTimeout(() => {
+        document.location.reload();
+      }, 5000);
+    }
+
     window.APP.hub = hub;
-    updateUIForHub(hub, hubChannel);
+    updateUIForHub(hub, hubChannel, showBitECSBasedClientRefreshPrompt);
 
     if (
       stale_fields.includes("scene") ||

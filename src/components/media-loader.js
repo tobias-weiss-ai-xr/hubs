@@ -28,8 +28,8 @@ import { cloneObject3D, setMatrixWorld } from "../utils/three-utils";
 import { waitForDOMContentLoaded } from "../utils/async-utils";
 
 import { SHAPE } from "three-ammo/constants";
-import { addComponent, entityExists, removeComponent } from "bitecs";
-import { MediaContentBounds, MediaLoading } from "../bit-components";
+import { addComponent } from "bitecs";
+import { MediaContentBounds } from "../bit-components";
 
 let loadingObject;
 
@@ -78,6 +78,7 @@ AFRAME.registerComponent("media-loader", {
         .catch(() => {}); //ignore exception, entity might not be networked
     } catch (e) {
       // NAF may not exist on scene landing page
+      console.warn("Networked AFrame not found, but this may be okay depending on the page: ", e);
     }
   },
 
@@ -288,9 +289,6 @@ AFRAME.registerComponent("media-loader", {
       MediaContentBounds.bounds[el.eid].set(contentBounds.toArray());
 
       el.emit("media-loaded");
-      if (el.eid && entityExists(APP.world, el.eid)) {
-        removeComponent(APP.world, MediaLoading, el.eid);
-      }
     };
 
     if (this.data.animate) {
@@ -349,7 +347,6 @@ AFRAME.registerComponent("media-loader", {
     try {
       if ((forceLocalRefresh || srcChanged) && !this.showLoaderTimeout) {
         this.showLoaderTimeout = setTimeout(this.showLoader, 100);
-        addComponent(APP.world, MediaLoading, this.el.eid);
       }
 
       //check if url is an anchor hash e.g. #Spawn_Point_1

@@ -123,7 +123,7 @@ async function grantedMicLabels() {
 }
 
 const isMobile = AFRAME.utils.device.isMobile();
-const isMobileVR = AFRAME.utils.device.isMobileVR();
+const isThisMobileVR = AFRAME.utils.device.isMobileVR();
 const AUTO_EXIT_TIMER_SECONDS = 10;
 
 class UIRoot extends Component {
@@ -156,6 +156,7 @@ class UIRoot extends Component {
     subscriptions: PropTypes.object,
     initialIsFavorited: PropTypes.bool,
     showSignInDialog: PropTypes.bool,
+    showBitECSBasedClientRefreshPrompt: PropTypes.bool,
     signInMessage: PropTypes.object,
     onContinueAfterSignIn: PropTypes.func,
     showSafariMicDialog: PropTypes.bool,
@@ -265,7 +266,7 @@ class UIRoot extends Component {
               });
             } catch (e) {
               console.error(e);
-              this.props.exitScene(ExitReason.sceneError); // https://github.com/mozilla/hubs/issues/1950
+              this.props.exitScene(ExitReason.sceneError); // https://github.com/Hubs-Foundation/hubs/issues/1950
             }
           }
 
@@ -526,7 +527,7 @@ class UIRoot extends Component {
   handleForceEntry = () => {
     console.log("Forced entry type: " + this.props.forcedVREntryType);
 
-    if (!this.props.forcedVREntryType) return;
+    if (!this.props.forcedVREntryType || !this.props.hubChannel.canEnterRoom(this.props.hub)) return;
 
     if (this.props.forcedVREntryType.startsWith("daydream")) {
       this.enterDaydream();
@@ -862,7 +863,7 @@ class UIRoot extends Component {
               this.handleForceEntry();
             }
           }}
-          showEnterOnDevice={!this.state.waitingOnAudio && !this.props.entryDisallowed && !isMobileVR}
+          showEnterOnDevice={!this.state.waitingOnAudio && !this.props.entryDisallowed && !isThisMobileVR}
           onEnterOnDevice={() => this.attemptLink()}
           showSpectate={!this.state.waitingOnAudio}
           onSpectate={() => this.setState({ watching: true })}
@@ -1133,7 +1134,8 @@ class UIRoot extends Component {
 
     const canCreateRoom = !configs.feature("disable_room_creation") || configs.isAdmin();
     const canCloseRoom = this.props.hubChannel && !!this.props.hubChannel.canOrWillIfCreator("close_hub");
-    const isModerator = this.props.hubChannel && this.props.hubChannel.canOrWillIfCreator("kick_users") && !isMobileVR;
+    const isModerator =
+      this.props.hubChannel && this.props.hubChannel.canOrWillIfCreator("kick_users") && !isThisMobileVR;
 
     const moreMenu = [
       {
@@ -1679,7 +1681,7 @@ class UIRoot extends Component {
                         selected={this.state.sidebarId === "chat"}
                       />
                     )}
-                    {entered && isMobileVR && (
+                    {entered && isThisMobileVR && (
                       <ToolbarButton
                         className={styleUtils.hideLg}
                         icon={<VRIcon />}
@@ -1692,7 +1694,7 @@ class UIRoot extends Component {
                 }
                 toolbarRight={
                   <>
-                    {entered && isMobileVR && (
+                    {entered && isThisMobileVR && (
                       <ToolbarButton
                         icon={<VRIcon />}
                         preset="accept"
@@ -1725,6 +1727,14 @@ class UIRoot extends Component {
               />
             )}
           </div>
+          {this.props.showBitECSBasedClientRefreshPrompt && (
+            <div className={styles.bitecsBasedClientRefreshPrompt}>
+              <FormattedMessage
+                id="ui-root.bitecs-based-client-refresh-prompt"
+                defaultMessage="This page will be reloaded in five seconds because the room owner toggled the bitECS based client activation flag."
+              />
+            </div>
+          )}
         </ReactAudioContext.Provider>
       </MoreMenuContextProvider>
     );
