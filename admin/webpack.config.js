@@ -146,12 +146,11 @@ module.exports = (env, argv) => {
         }
       },
       server: {
-        type: "https",
-        options: createHTTPSConfig()
+        type: "http"
       },
-      host: process.env.HOST_IP || "0.0.0.0",
+      host: "0.0.0.0",
       port: process.env.PORT || "8989",
-      allowedHosts: [host, internalHostname],
+      allowedHosts: "all",
       headers: {
         "Access-Control-Allow-Origin": "*"
       },

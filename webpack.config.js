@@ -358,12 +358,11 @@ module.exports = async (env, argv) => {
         }
       },
       server: {
-        type: "http",
-        options: createHTTPSConfig()
+        type: "http"
       },
       host: "0.0.0.0",
       port: 8080,
-      allowedHosts: [host, internalHostname],
+      allowedHosts: "all",
       headers: devServerHeaders,
       hot: liveReload,
       liveReload: liveReload,
