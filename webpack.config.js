@@ -350,7 +350,7 @@ module.exports = async (env, argv) => {
         options: createHTTPSConfig()
       },
       host: "0.0.0.0",
-      port: 8080,
+      port: 8084,
       allowedHosts: [host, internalHostname],
       headers: devServerHeaders,
       hot: liveReload,
