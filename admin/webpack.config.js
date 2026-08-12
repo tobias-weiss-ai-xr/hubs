@@ -101,6 +101,11 @@ module.exports = (env, argv) => {
         three$: path.resolve(__dirname, "./node_modules/three/build/three.module.js"),
         bitecs$: path.resolve(__dirname, "./node_modules/bitecs/dist/index.mjs"),
 
+        // @material-ui/icons (admin UI) imports @babel/runtime/helpers/builtin/*
+        // — that subpath was removed in @babel/runtime >= 7.26. Map it to
+        // helpers/ where the same files live (interopRequireDefault etc.).
+        "@babel/runtime/helpers/builtin": path.resolve(__dirname, "node_modules/@babel/runtime/helpers"),
+
         // UMD libraries that need explicit module resolution to work with ES6 imports
         // These are resolved relative to the parent hubs directory since admin imports from hubs
         "js-cookie": path.resolve(__dirname, "../node_modules/js-cookie/src/js.cookie.js"),
