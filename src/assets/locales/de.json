@@ -622,5 +622,7 @@
   "element-selector.actinides": "Actinoide",
   "element-selector.atomic-info": "Ordnungszahl {number}, Gruppe {group}, Periode {period}",
   "element-selector.create-room": "Raum mit {name} erstellen",
-  "element-selector.cancel": "Abbrechen"
+  "element-selector.cancel": "Abbrechen",
+  "invite-tooltip.description": "Raum-Link kopieren, um andere in den Raum einzuladen",
+  "chat-tooltip.description": "Chat-Seitenleiste öffnen (T)"
 }
