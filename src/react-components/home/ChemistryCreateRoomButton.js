@@ -26,21 +26,40 @@ export function ChemistryCreateRoomButton() {
         headers.authorization = `bearer ${token}`;
       }
 
-      const resp = await fetch("/api/v1/rooms/classroom", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
+      // Use the auth_optional /api/v1/hubs endpoint (same as the standard
+      // "Create Room" flow) so guests can create chemistry rooms without
+      // signing in. user_data.chemistry is validated server-side.
+      const payload = {
+        hub: {
           name: `${symbol} Chemieraum`,
           user_data: { chemistry: { symbol } }
-        })
+        }
+      };
+
+      let resp = await fetch("/api/v1/hubs", {
+        method: "POST",
+        headers,
+        body: JSON.stringify(payload)
       });
 
-      if (resp.ok) {
-        const data = await resp.json();
-        window.location.href = data.url || `/hub.html?hub_id=${data.room_id}`;
+      let data = await resp.json().catch(() => ({}));
+
+      // Retry anonymously if the stored token was invalid.
+      if (!resp.ok && data.error === "invalid_token") {
+        delete headers.authorization;
+        resp = await fetch("/api/v1/hubs", {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payload)
+        });
+        data = await resp.json().catch(() => ({}));
+      }
+
+      if (resp.ok && data.hub_id) {
+        window.location.href = data.url || `/hub.html?hub_id=${data.hub_id}`;
       } else {
-        const err = await resp.json().catch(() => ({ error: "Fehler beim Erstellen des Raums" }));
-        setErrorMessage(err.error || "Fehler beim Erstellen des Raums");
+        const errMsg = data.error || data.details || "Fehler beim Erstellen des Raums";
+        setErrorMessage(errMsg);
         setCreating(false);
         setShowSelector(false);
       }
