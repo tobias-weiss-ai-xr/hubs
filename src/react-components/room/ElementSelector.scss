@@ -1,11 +1,11 @@
-.container {
+:local(.container) {
   padding: 24px;
   max-width: 1000px;
   margin: 0 auto;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
 }
 
-.header {
+:local(.header) {
   text-align: center;
   margin-bottom: 16px;
 
@@ -16,13 +16,13 @@
   }
 }
 
-.subtitle {
+:local(.subtitle) {
   margin: 0;
   color: #888;
   font-size: 14px;
 }
 
-.legend {
+:local(.legend) {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 16px;
@@ -31,27 +31,27 @@
   font-size: 12px;
 }
 
-.legendItem {
+:local(.legendItem) {
   display: inline-flex;
   align-items: center;
   gap: 4px;
 }
 
-.legendDot {
+:local(.legendDot) {
   width: 10px;
   height: 10px;
   border-radius: 50%;
   display: inline-block;
 }
 
-.grid {
+:local(.grid) {
   display: grid;
   grid-template-columns: repeat(18, 1fr);
   gap: 2px;
   margin-bottom: 16px;
 }
 
-.cell {
+:local(.cell) {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -74,24 +74,24 @@
   }
 }
 
-.selected {
+:local(.selected) {
   background: #2a2a4e;
   border-width: 2px;
   border-style: solid;
 }
 
-.number {
+:local(.number) {
   font-size: 8px;
   color: #888;
 }
 
-.symbol {
+:local(.symbol) {
   font-size: 14px;
   font-weight: 700;
   line-height: 1.1;
 }
 
-.elementName {
+:local(.elementName) {
   font-size: 7px;
   color: #aaa;
   white-space: nowrap;
@@ -100,7 +100,7 @@
   max-width: 48px;
 }
 
-.fblockGrid {
+:local(.fblockGrid) {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -110,20 +110,20 @@
   border-radius: 8px;
 }
 
-.fblockLabel {
+:local(.fblockLabel) {
   font-size: 10px;
   color: #888;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
-.fblockRow {
+:local(.fblockRow) {
   display: flex;
   gap: 2px;
   flex-wrap: wrap;
 }
 
-.infoCard {
+:local(.infoCard) {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -133,14 +133,14 @@
   margin-bottom: 12px;
 }
 
-.infoSymbol {
+:local(.infoSymbol) {
   font-size: 48px;
   font-weight: 700;
   min-width: 80px;
   text-align: center;
 }
 
-.infoDetails {
+:local(.infoDetails) {
   flex: 1;
 
   h3 {
@@ -155,7 +155,7 @@
   }
 }
 
-.confirmBtn {
+:local(.confirmBtn) {
   padding: 10px 20px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #fff;
@@ -171,7 +171,7 @@
   }
 }
 
-.cancelBtn {
+:local(.cancelBtn) {
   display: block;
   width: 100%;
   padding: 10px;

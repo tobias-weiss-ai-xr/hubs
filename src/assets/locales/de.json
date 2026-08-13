@@ -612,5 +612,15 @@
   "webvr-unsupported-modal.message": "WebVR wird in diesem Browser nicht unterstützt. Um mit Oculus oder SteamVR einzusteigen, verwende Firefox.",
   "webvr-unsupported-modal.title": "In VR betreten",
   "webvr-unsupported-modal.webvr-rocks-link": "Eine Liste von Browsern mit experimenteller VR-Unterstützung findest du unter <a>WebVR Rocks</a>.",
-  "whats-new-page.title": "Was gibt's Neues"
+  "whats-new-page.title": "Was gibt's Neues",
+  "create-chemistry-room.button": "🧪 Chemieraum",
+  "create-chemistry-room.creating": "Erstellen…",
+  "element-selector.overlay-label": "Element-Auswahl",
+  "element-selector.title": "Periodensystem der Elemente",
+  "element-selector.subtitle": "Wähle ein Element für deinen Chemieraum",
+  "element-selector.lanthanides": "Lanthanoide",
+  "element-selector.actinides": "Actinoide",
+  "element-selector.atomic-info": "Ordnungszahl {number}, Gruppe {group}, Periode {period}",
+  "element-selector.create-room": "Raum mit {name} erstellen",
+  "element-selector.cancel": "Abbrechen"
 }
