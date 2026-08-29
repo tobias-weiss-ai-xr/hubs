@@ -6,7 +6,10 @@ self.addEventListener("activate", function (e) {
   return e.waitUntil(self.clients.claim());
 });
 
-self.addEventListener("fetch", function () {});
+// NOTE: no "fetch" listener on purpose. A no-op fetch handler
+// (addEventListener("fetch", () => {})) is flagged by Chrome as overhead
+// during navigation and serves no purpose — only add one when the service
+// worker actually handles requests (e.g. offline caching).
 
 // Reticulum will inject an overrided app name.
 // eslint-disable-next-line prefer-const

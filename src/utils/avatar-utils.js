@@ -15,7 +15,10 @@ export function getAvatarType(avatarId) {
 }
 
 async function fetchSkinnableAvatar(avatarId) {
-  const resp = await fetchReticulumAuthenticated(`/api/v1/avatars/${avatarId}`);
+  // Preserve the historical contract: callers expect an avatar or
+  // undefined, never a rejection (an API error previously degraded to
+  // undefined via the null-safe field reads).
+  const resp = await fetchReticulumAuthenticated(`/api/v1/avatars/${avatarId}`).catch(() => undefined);
   return resp && resp.avatars && resp.avatars[0];
 }
 

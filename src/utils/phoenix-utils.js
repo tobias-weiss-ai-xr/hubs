@@ -189,12 +189,23 @@ export function fetchReticulumAuthenticatedWithToken(token, url, method = "GET",
   }
   return fetch(retUrl, params).then(async r => {
     const result = await r.text();
+    let parsed;
     try {
-      return JSON.parse(result);
+      parsed = JSON.parse(result);
     } catch {
       // Some reticulum responses, particularly DELETE requests, don't return json.
-      return result;
+      parsed = result;
     }
+    if (!r.ok) {
+      // Error bodies must surface as rejections, never as data: resolving
+      // e.g. a 401 {"error":...} payload used to crash downstream consumers
+      // that read response fields (usePaginatedAPI reading .meta, etc.).
+      const err = new Error(`Reticulum request failed (${r.status})`);
+      err.status = r.status;
+      err.payload = parsed;
+      throw err;
+    }
+    return parsed;
   });
 }
 export function fetchReticulumAuthenticated(url, method = "GET", payload) {

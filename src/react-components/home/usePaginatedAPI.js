@@ -64,14 +64,21 @@ export function usePaginatedAPI(apiCallback) {
           return;
         }
 
+        // Degrade gracefully on error payloads or unexpected shapes: a
+        // response without meta/entries used to throw here and white-screen
+        // the home page. Optional chaining + defaults keep the UI alive.
+        const nextCursor = response?.meta?.next_cursor;
+        const entries = response?.entries ?? [];
+        const suggestions = response?.suggestions ?? [];
+
         setState(curState => ({
           ...curState,
           isLoading: false,
-          hasMore: !!response.meta.next_cursor,
-          results: [...curState.results, ...response.entries],
-          suggestions: response.suggestions,
+          hasMore: !!nextCursor,
+          results: [...curState.results, ...entries],
+          suggestions,
           error: undefined,
-          nextCursor: response.meta.next_cursor
+          nextCursor
         }));
       })
       .catch(error => {

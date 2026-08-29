@@ -1,7 +1,6 @@
 const dotenv = require("dotenv");
 const fs = require("fs");
 const path = require("path");
-const selfsigned = require("selfsigned");
 const webpack = require("webpack");
 const cors = require("cors");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
@@ -14,53 +13,8 @@ const packageLock = require("./package-lock.json");
 const request = require("request");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 
-function createHTTPSConfig() {
-  // Generate certs for the local webpack-dev-server.
-  if (fs.existsSync(path.join(__dirname, "certs"))) {
-    const key = fs.readFileSync(path.join(__dirname, "certs", "key.pem"));
-    const cert = fs.readFileSync(path.join(__dirname, "certs", "cert.pem"));
-
-    return { key, cert };
-  } else {
-    const pems = selfsigned.generate(
-      [
-        {
-          name: "commonName",
-          value: "localhost"
-        }
-      ],
-      {
-        days: 365,
-        keySize: 2048,
-        algorithm: "sha256",
-        extensions: [
-          {
-            name: "subjectAltName",
-            altNames: [
-              {
-                type: 2,
-                value: "localhost"
-              },
-              {
-                type: 2,
-                value: "hubs.local"
-              }
-            ]
-          }
-        ]
-      }
-    );
-
-    fs.mkdirSync(path.join(__dirname, "certs"));
-    fs.writeFileSync(path.join(__dirname, "certs", "cert.pem"), pems.cert);
-    fs.writeFileSync(path.join(__dirname, "certs", "key.pem"), pems.private);
-
-    return {
-      key: pems.private,
-      cert: pems.cert
-    };
-  }
-}
+// (createHTTPSConfig removed: generated dev-server certs are unused in the
+// baked-image production build — dead code.)
 
 function getModuleDependencies(moduleName) {
   const deps = packageLock.packages;
@@ -269,8 +223,6 @@ module.exports = async (env, argv) => {
   // In production, the environment variables are defined in CI or loaded from ita and
   // the app config is injected into the head of the page by Reticulum.
 
-  const host = process.env.HOST_IP || env.localDev || env.remoteDev ? "hubs.local" : "localhost";
-
   const liveReload = !!process.env.LIVE_RELOAD || false;
 
   const devServerHeaders = {
@@ -285,11 +237,7 @@ module.exports = async (env, argv) => {
     // .replaceAll("connect-src", "connect-src https://example.com");
   }
 
-  const internalHostname = process.env.INTERNAL_HOSTNAME || "hubs.local";
   return {
-    cache: {
-      type: "filesystem"
-    },
     resolve: {
       alias: {
         // aframe and networked-aframe are still using commonjs modules. three and bitecs are peer dependanciees
@@ -349,6 +297,15 @@ module.exports = async (env, argv) => {
       publicPath: process.env.BASE_ASSETS_PATH || ""
     },
     target: ["web", "es2020"], // use es2020 for modern browsers as defined in browserslistrc
+    // Persistent build cache: dramatically speeds up incremental rebuilds (local + CI).
+    // CI should cache node_modules/.cache/webpack between runs.
+    cache: {
+      type: "filesystem",
+      cacheDirectory: path.resolve(__dirname, "node_modules/.cache/webpack"),
+      buildDependencies: {
+        config: [__filename]
+      }
+    },
     devtool: argv.mode === "production" ? "source-map" : "inline-source-map",
     devServer: {
       client: {
@@ -729,6 +686,17 @@ module.exports = async (env, argv) => {
           {
             from: "src/hub.service.js",
             to: "hub.service.js"
+          }
+        ]
+      }),
+      // PWA roots: favicon.ico + manifest.webmanifest must exist at dist root,
+      // otherwise the browser logs a favicon 404 and an old/stale manifest
+      // (with hashed icon paths) keeps being served.
+      new CopyWebpackPlugin({
+        patterns: [
+          {
+            from: "public",
+            to: "."
           }
         ]
       }),

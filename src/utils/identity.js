@@ -99,7 +99,11 @@ export function generateRandomName() {
 
 export async function fetchRandomDefaultAvatarId() {
   const defaultAvatarEndpoint = "/api/v1/media/search?filter=default&source=avatar_listings";
-  const defaultAvatars = (await fetchReticulumAuthenticated(defaultAvatarEndpoint)).entries || [];
+  // On auth failure fall back to the bundled default avatar (duck) exactly
+  // like an empty listing would — a broken session must not break entry.
+  const defaultAvatars = await fetchReticulumAuthenticated(defaultAvatarEndpoint)
+    .then(response => response?.entries ?? [])
+    .catch(() => []);
   if (defaultAvatars.length === 0) {
     // If reticulum doesn't return any default avatars, just default to the duck model. This should only happen
     // when running against a fresh reticulum server, e.g. a local ret instance.
