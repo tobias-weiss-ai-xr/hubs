@@ -50,6 +50,30 @@ if (process.env.APP_CONFIG) {
 
 if (window.APP_CONFIG) {
   configs.APP_CONFIG = window.APP_CONFIG;
+  if (!configs.APP_CONFIG.features) {
+    configs.APP_CONFIG.features = {};
+  }
+} else {
+  configs.APP_CONFIG = {
+    features: {}
+  };
+}
+
+// chemie-lernen.org default branding when the platform does not supply a theme.
+if (!configs.APP_CONFIG.theme) {
+  configs.APP_CONFIG.theme = {
+    primary: "#2d6a4f",
+    "primary-dark": "#1b4332",
+    secondary: "#40916c",
+    accent: "#52b788",
+    background: "#1b1b1b",
+    "panel-background": "#2a2a2a",
+    text: "#ffffff"
+  };
+}
+
+// Inject theme CSS variables into :root (applies for both dev and production).
+{
   const { theme } = configs.APP_CONFIG;
   if (theme) {
     const colorVars = [];
@@ -61,17 +85,9 @@ if (window.APP_CONFIG) {
     style.innerHTML = `:root{${colorVars.join("\n")}}`;
     document.head.insertBefore(style, document.head.firstChild);
   }
-
-  if (!configs.APP_CONFIG.features) {
-    configs.APP_CONFIG.features = {};
-  }
-} else {
-  configs.APP_CONFIG = {
-    features: {}
-  };
 }
 
-const isLocalDevelopment = process.env.NODE_ENV === "development";
+// (isLocalDevelopment removed: assigned but never read — dead code.)
 
 configs.feature = featureName => {
   const value = configs.APP_CONFIG && configs.APP_CONFIG.features && configs.APP_CONFIG.features[featureName];
@@ -83,21 +99,24 @@ configs.feature = featureName => {
   }
 };
 
-let localDevImages = {};
-if (isLocalDevelopment) {
-  localDevImages = {
-    logo: appLogoDark,
-    logo_dark: appLogo,
-    company_logo: companyLogo,
-    editor_logo: sceneEditorLogo,
-    home_background: homeHeroBackground
-  };
-}
+// Branded fallback images. Used whenever APP_CONFIG.images is not populated
+// (e.g. a static production build served by static-server.py without Reticulum's
+// APP_CONFIG injection). This keeps the chemie-lernen.org logos on the landing page.
+const fallbackImages = {
+  logo: appLogoDark,
+  logo_dark: appLogo,
+  company_logo: companyLogo,
+  editor_logo: sceneEditorLogo,
+  home_background: homeHeroBackground,
+  landing_rooms_thumb: homeHeroBackground,
+  landing_communicate_thumb: homeHeroBackground,
+  landing_media_thumb: homeHeroBackground
+};
 
 configs.image = (imageName, cssUrl) => {
   const url =
     (configs.APP_CONFIG && configs.APP_CONFIG.images && configs.APP_CONFIG.images[imageName]) ||
-    localDevImages[imageName];
+    fallbackImages[imageName];
   return url && cssUrl ? `url(${url})` : url;
 };
 

@@ -48,13 +48,15 @@ test.serial("closes modal when cancel is pressed", t => {
 
 test.serial("creates room on element confirm", async t => {
   const originalFetch = globalThis.fetch;
+  // The room-creation contract (00944cae5): anonymous POST /api/v1/hubs with
+  // a nested hub payload; chemistry metadata travels in user_data.
   globalThis.fetch = async (url, opts) => {
-    t.true(url.includes("/api/v1/rooms/classroom"));
+    t.true(url.includes("/api/v1/hubs"));
     t.is(opts.method, "POST");
     const body = JSON.parse(opts.body);
-    t.true(body.name.startsWith("H "));
-    t.is(body.user_data.chemistry.symbol, "H");
-    return new Response(JSON.stringify({ url: "/hub.html?hub_id=new-room" }), { status: 200 });
+    t.is(body.hub.name, "H Chemieraum");
+    t.is(body.hub.user_data.chemistry.symbol, "H");
+    return new Response(JSON.stringify({ hub_id: "new-room", url: "/hub.html?hub_id=new-room" }), { status: 200 });
   };
 
   const { container } = renderWithIntl(<ChemistryCreateRoomButton />);
